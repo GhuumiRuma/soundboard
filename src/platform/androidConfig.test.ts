@@ -127,13 +127,20 @@ describe('Android screen', () => {
     }
   });
 
-  it('is dark from the first moment: the splash screen, the window and the status and navigation bars', () => {
-    expect(config.backgroundColor).toBe('#111018');
-    expect(read('android/app/src/main/res/values/colors.xml')).toMatch(/<color name="app_background">#111018<\/color>/i);
+  // The bars show the window colour while the app picks light or dark icons for them to suit its theme, which
+  // follows the phone. Dark icons on a dark bar, or light icons on a light one, cannot be read.
+  it('matches the phone from the first moment: light colours in light mode, dark colours in dark mode', () => {
+    expect(read('android/app/src/main/res/values/colors.xml')).toMatch(/<color name="app_background">#FAF8FF<\/color>/i);
+    expect(read('android/app/src/main/res/values-night/colors.xml')).toMatch(/<color name="app_background">#111018<\/color>/i);
     const styles = read('android/app/src/main/res/values/styles.xml');
     for (const item of ['android:windowBackground', 'android:statusBarColor', 'android:navigationBarColor', 'windowSplashScreenBackground']) {
       expect(styles).toContain(`<item name="${item}">@color/app_background</item>`);
     }
+    expect(read('android/app/src/main/res/drawable/splash.xml')).toContain('@color/app_background');
+  });
+
+  it('lets that window colour show until the page has drawn itself', () => {
+    expect(config.backgroundColor).toBe('#00000000');
   });
 
   it('puts the icon art on a dark tile', () => {

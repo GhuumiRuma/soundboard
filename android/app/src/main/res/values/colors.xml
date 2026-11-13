@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- The app's dark background (#111018). Behind the page while it loads, the splash screen and the status and navigation bars. -->
-    <color name="app_background">#111018</color>
+    <!-- The app's light background (#FAF8FF), for phones set to light mode (values-night has the dark one).
+         Behind the page while it loads, the splash screen and the status and navigation bars. The app picks
+         light or dark icons for the bars to match its own theme, which follows the phone unless changed. -->
+    <color name="app_background">#FAF8FF</color>
 </resources>
