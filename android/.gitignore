@@ -93,6 +93,9 @@ lint/tmp/
 # Cordova plugins for Capacitor
 capacitor-cordova-android-plugins
 
+# Screenshot and log from the emulator check (.github/workflows/android-smoke.yml)
+smoke-output/
+
 # Copied web assets
 app/src/main/assets/public
 

@@ -153,3 +153,16 @@ describe('Android data origin', () => {
     expect(manifest()).toMatch(/<application[^>]*android:hasFragileUserData="true"/);
   });
 });
+
+describe('Android emulator check', () => {
+  const smoke = () => read('.github/workflows/android-smoke.yml');
+
+  it('runs only when started by hand, so it never slows down a push', () => {
+    expect(smoke()).toMatch(/^on:\s*\n\s+workflow_dispatch:\s*$/m);
+    expect(smoke()).not.toMatch(/^\s+(push|pull_request|schedule):/m);
+  });
+
+  it('opens the app under its real package id', () => {
+    expect(read('android/smoke-test.sh')).toContain(`app_id=${APP_ID}`);
+  });
+});
