@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#111018" />
+    <meta name="color-scheme" content="dark" />
+    <script>
+      // Picks the saved theme before the first paint so light-theme users don't see a dark flash.
+      // Mirrors src/state/theme.ts (storage key, "system" default, background colours).
+      (function () {
+        var pref = null;
+        try {
+          pref = localStorage.getItem('soundboard-theme');
+        } catch (e) {}
+        var light =
+          pref === 'light' || (pref !== 'dark' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
+        document.documentElement.dataset.theme = light ? 'light' : 'dark';
+        if (light) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#faf8ff');
+          document.querySelector('meta[name="color-scheme"]').setAttribute('content', 'light');
+        }
+      })();
+    </script>
+    <meta name="description" content="Soundboard: big colourful buttons for your sounds. Plays on your phone, tablet or computer. No account, no cloud." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Soundboard" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Soundboard</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>Soundboard needs JavaScript to run. Turn it on in your browser settings, then reload this page.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

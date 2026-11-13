@@ -1,0 +1,129 @@
+/*
+  Colours, spacing and themes, ported from StreamStudio's app.css.
+  Dark is the default. <html data-theme="light"> swaps in the light colours (see src/state/theme.ts).
+*/
+:root {
+  --app-gap: 16px;
+  --app-radius: 14px;
+  --app-live: #e5484d;
+  --app-ok: #30a46c;
+  --app-warn: #f5a524;
+  --app-accent: #8b5cf6;
+  /* Filled buttons use a slightly deeper purple so white text on them keeps at least 4.5:1 contrast. */
+  --app-accent-fill: #7c3aed;
+  --app-accent-fill-hover: #6d28d9;
+  --app-bg: #111018;
+  --app-panel: #1b1824;
+  --app-panel-2: #241f31;
+  --app-text: #f7f2ff;
+  --app-muted: #c9c1d9;
+  --app-border: rgba(255, 255, 255, 0.12);
+
+  /* Status text. Dark first; the light theme uses darker shades for 4.5:1 contrast. */
+  --app-error-text: #ff8c90;
+  --app-warn-text: #ffc36d;
+  --app-ok-text: #77d9a0;
+  --app-busy-text: #b9a0ff;
+
+  /* Windows first (like StreamStudio), then whatever each phone or computer uses. */
+  --body-font: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', Roboto,
+    'Helvetica Neue', Arial, 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
+  --mono-font: 'Cascadia Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  --tap: 44px;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --app-bg: #faf8ff;
+  --app-panel: #ffffff;
+  --app-panel-2: #f0eaff;
+  --app-text: #21182f;
+  --app-muted: #5f566d;
+  --app-border: rgba(54, 38, 76, 0.16);
+  --app-ok: #18794e;
+  --app-warn: #9a4d00;
+  --app-live: #cd2b31;
+  --app-error-text: #b8232a;
+  --app-warn-text: #8f4a00;
+  --app-ok-text: #0f6b41;
+  --app-busy-text: #6538cf;
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--app-bg);
+  color: var(--app-text);
+  font-family: var(--body-font);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--app-accent) 80%, white);
+  outline-offset: 3px;
+}
+
+noscript {
+  display: block;
+  padding: 24px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
