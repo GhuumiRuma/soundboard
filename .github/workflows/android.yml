@@ -1,0 +1,182 @@
+name: Android app
+
+# Every branch push builds an APK artifact; only main updates the public release.
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: android-${{ github.ref }}
+  # A newer push replaces an older branch build, but main is never cancelled part way: a run stopped between
+  # deleting the old release and creating the new one would leave the download page empty.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+env:
+  # SHA-256 fingerprint of the certificate every Soundboard.apk must be signed with (public information).
+  # Android installs a new APK over an installed copy only when the signing certificate is identical, so a
+  # build signed with any other key can't update the phones that already have Soundboard, and uninstalling
+  # first deletes their boards and sounds. Change this only when you deliberately move to a new key.
+  EXPECTED_CERT_SHA256: b71a5732e6ba9fc9478b3b939eb0d81f547774c5811123cc2c494640b7cd2454
+  # The id the app is installed under (capacitor.config.ts). It can never change once people have the app.
+  APP_ID: io.github.ghuumiruma.soundboard
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      # Signing: the repository secrets hold the one permanent key, so every build installs over the
+      # previous one. Without them (a fork) the build gets a one-off key: it installs on a phone that has
+      # no Soundboard, but it can't update an installed copy, and main refuses to publish it.
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          keystore="$RUNNER_TEMP/release.jks"
+          if [ -n "$KEYSTORE_B64" ]; then
+            source=secrets
+            for value in "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD"; do
+              case "$value" in
+                '')
+                  echo "::error::Set all four secrets: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD."
+                  exit 1 ;;
+                *$'\n'*|*$'\r'*)
+                  echo "::error::A signing secret contains a line break. Set it again without a trailing newline."
+                  exit 1 ;;
+              esac
+            done
+            printf '%s' "$KEYSTORE_B64" | base64 -d > "$keystore"
+            keytool -list -keystore "$keystore" -storepass:env KEYSTORE_PASSWORD -alias "$KEY_ALIAS" > /dev/null \
+              || { echo "::error::The signing keystore does not open with the stored password and alias."; exit 1; }
+          else
+            if [ "$GITHUB_REF" = refs/heads/main ]; then
+              echo "::error::main publishes the app people update from, so it must be signed with the permanent key. Add the four ANDROID_KEYSTORE_* repository secrets."
+              exit 1
+            fi
+            echo "::warning::No signing secrets are set, so this APK is signed with a one-off key. It can't update an installed Soundboard."
+            source=one-off
+            KEYSTORE_PASSWORD="$(openssl rand -hex 24)"
+            echo "::add-mask::$KEYSTORE_PASSWORD"
+            KEY_ALIAS=soundboard
+            KEY_PASSWORD="$KEYSTORE_PASSWORD"
+            export KEYSTORE_PASSWORD KEY_PASSWORD
+            keytool -genkeypair -noprompt -keystore "$keystore" -storepass:env KEYSTORE_PASSWORD -keypass:env KEY_PASSWORD \
+              -alias "$KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Soundboard (one-off build)"
+          fi
+          {
+            echo "ANDROID_KEYSTORE_FILE=$keystore"
+            echo "ANDROID_KEYSTORE_PASSWORD=$KEYSTORE_PASSWORD"
+            echo "ANDROID_KEY_ALIAS=$KEY_ALIAS"
+            echo "ANDROID_KEY_PASSWORD=$KEY_PASSWORD"
+            echo "SIGNING_SOURCE=$source"
+          } >> "$GITHUB_ENV"
+
+      # The page the app shows, built for the phone, then copied into the Android project.
+      # (Typecheck, tests and the web build are already run by ci.yml.)
+      - run: npm ci
+      - run: npm run build:native
+      - run: npx cap sync android
+      - name: Check the plugin list in android/
+        run: |
+          if ! git diff --quiet -- android/capacitor.settings.gradle android/app/capacitor.build.gradle; then
+            echo "::warning::The Capacitor plugin list committed in android/ is out of date (this build used the fresh one). Run 'npm run build:native' and 'npx cap sync android', then commit the two changed gradle files."
+          fi
+      - name: Build APK
+        working-directory: android
+        env:
+          VERSION_CODE: ${{ github.run_number }}
+          VERSION_NAME: 1.${{ github.run_number }}
+        run: ./gradlew assembleRelease --no-daemon
+      - run: cp android/app/build/outputs/apk/release/app-release.apk Soundboard.apk
+
+      # Read the certificate back out of the finished APK, so what is checked is what people would install.
+      - name: Check the signature
+        run: |
+          set -euo pipefail
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | sort -V | tail -n 1 || true)"
+          [ -n "$apksigner" ] || { echo "::error::apksigner was not found in the Android SDK."; exit 1; }
+          report="$("$apksigner" verify --print-certs Soundboard.apk)"
+          echo "::group::apksigner report"
+          printf '%s\n' "$report"
+          echo "::endgroup::"
+          cert="$(printf '%s\n' "$report" | awk '/ certificate SHA-256 digest: / && !/Source Stamp/ { print tolower($NF); exit }')"
+          printf '%s' "$cert" | grep -Eq '^[0-9a-f]{64}$' || { echo "::error::Could not read the signing certificate from Soundboard.apk. See the apksigner report above."; exit 1; }
+          {
+            echo "### Android app signature"
+            echo "- Signing key: \`$SIGNING_SOURCE\`"
+            echo "- Certificate SHA-256: \`$cert\`"
+            echo "- Version code: \`${{ github.run_number }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$SIGNING_SOURCE" = secrets ] && [ "$cert" != "$EXPECTED_CERT_SHA256" ]; then
+            echo "::error::The signing secrets give certificate $cert, but installed copies of Soundboard were signed with $EXPECTED_CERT_SHA256, so this build couldn't update them. Fix the secrets, or if you are deliberately moving to a new key, update EXPECTED_CERT_SHA256 in .github/workflows/android.yml."
+            exit 1
+          fi
+
+      # Read the app's identity out of the finished APK too: what it is called, what it will ask the
+      # phone for, and that the web app is inside.
+      - name: Check the app
+        run: |
+          set -euo pipefail
+          tool() { ls -d "$ANDROID_HOME"/build-tools/*/"$1" 2>/dev/null | sort -V | tail -n 1 || true; }
+          aapt="$(tool aapt)"
+          [ -n "$aapt" ] || aapt="$(tool aapt2)"
+          [ -n "$aapt" ] || { echo "::error::aapt was not found in the Android SDK."; exit 1; }
+          badging="$("$aapt" dump badging Soundboard.apk)"
+          echo "::group::aapt dump badging"
+          printf '%s\n' "$badging"
+          echo "::endgroup::"
+          # The one permission Android's own libraries add for themselves is not something the app asks the user for.
+          permissions="$(sed -n "s/^uses-permission: name='\([^']*\)'.*/\1/p" <<< "$badging" | grep -v '\.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION$' | sort || true)"
+          expected=$'android.permission.INTERNET\nandroid.permission.MODIFY_AUDIO_SETTINGS\nandroid.permission.RECORD_AUDIO\nandroid.permission.VIBRATE'
+          grep -Fq "package: name='$APP_ID' " <<< "$badging" || { echo "::error::Soundboard.apk is not the app $APP_ID. See the aapt report above."; exit 1; }
+          grep -Fqx "application-label:'Soundboard'" <<< "$badging" || { echo "::error::Soundboard.apk is not called Soundboard. See the aapt report above."; exit 1; }
+          grep -Fq "versionCode='${{ github.run_number }}' versionName='1.${{ github.run_number }}'" <<< "$badging" || { echo "::error::Soundboard.apk does not carry this run's version number. See the aapt report above."; exit 1; }
+          if [ "$permissions" != "$expected" ]; then
+            echo "Permissions in Soundboard.apk:"
+            printf '%s\n' "$permissions"
+            echo "::error::Soundboard.apk should ask only for the internet, the microphone, audio settings and vibration."
+            exit 1
+          fi
+          unzip -l Soundboard.apk assets/public/index.html > /dev/null || { echo "::error::The web app is missing from Soundboard.apk."; exit 1; }
+          {
+            echo "### Android app"
+            echo "- Package: \`$APP_ID\`, version \`1.${{ github.run_number }}\` (code \`${{ github.run_number }}\`)"
+            echo "- Size: $(du -h Soundboard.apk | cut -f1)"
+            echo "- Permissions: $(printf '%s' "$permissions" | sed 's/^android\.permission\.//' | paste -sd ' ' -)"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: Soundboard-android
+          path: Soundboard.apk
+
+      - name: Publish the "Latest Android app" release
+        if: ${{ github.ref == 'refs/heads/main' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          echo "Open this page on your Android phone and tap **Soundboard.apk** to download it, then open the file to install. Android asks you to allow installing apps from your browser the first time. To update, install the newer Soundboard.apk over the old one: your boards and sounds stay. Built from ${{ github.sha }}." > "$RUNNER_TEMP/release-notes.md"
+          gh release delete android-latest --yes --cleanup-tag || true
+          gh release create android-latest Soundboard.apk \
+            --title "Latest Android app (build ${{ github.run_number }})" \
+            --target "${{ github.sha }}" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
