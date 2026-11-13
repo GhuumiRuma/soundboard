@@ -25,7 +25,9 @@ env:
 
 jobs:
   apk:
-    runs-on: ubuntu-latest
+    # Pinned (not ubuntu-latest) so the Android SDK tools this build and its checks rely on can't change
+    # underneath it when GitHub moves the "latest" label to a newer Ubuntu.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
