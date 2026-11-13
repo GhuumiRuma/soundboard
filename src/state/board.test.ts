@@ -1,26 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AudioBufferLike, PlayResult } from '../audio/engine';
-import { SoundProblem, soundMessages } from '../audio/engine';
+import { SoundProblem, soundMessages, type PlayResult } from '../audio/engine';
 import { EMOJIS, PALETTE } from '../model/rules';
 import { MemoryStorage } from '../storage/memory';
 import { StorageProblem, importMessages, storageMessages } from '../storage';
 import { makeWav } from '../test/audio';
-import { boardMessages, createBoardStore, currentBoard, editingSound, type BoardEngine } from './board';
+import { fakeEngine } from '../test/engine';
+import { boardMessages, createBoardStore, currentBoard, editingSound } from './board';
 import { UNDO_WINDOW_MS } from './undo';
-
-function fakeEngine(overrides: Partial<BoardEngine> = {}) {
-  return {
-    play: vi.fn(async (): Promise<PlayResult> => ({ ok: true })),
-    stopAll: vi.fn(),
-    setMasterVolume: vi.fn(),
-    setSoundVolume: vi.fn(),
-    decode: vi.fn(async () => ({ length: 1, numberOfChannels: 1, duration: 0.25 }) as AudioBufferLike),
-    remember: vi.fn(),
-    forget: vi.fn(),
-    preload: vi.fn(async () => undefined),
-    ...overrides,
-  };
-}
 
 async function setup(storage = new MemoryStorage(true), engine = fakeEngine()) {
   const store = createBoardStore({ storage, engine });
@@ -645,5 +631,36 @@ describe('replacing everything', () => {
     vi.advanceTimersByTime(UNDO_WINDOW_MS);
     await store.sweep();
     expect(await storage.hasMedia(sound.mediaId)).toBe(false);
+  });
+
+  it('opens the board it is asked to, and Undo goes back to the board she was on', async () => {
+    const { store, state } = await setup();
+    const sound = await soundOn(store);
+    const before = state().boardId;
+    const data = {
+      boards: [
+        ...state().data.boards,
+        { id: 'from-backup', name: 'From backup', sounds: [{ ...sound, id: 'other', mediaId: sound.mediaId }] },
+      ],
+      masterVolume: 1,
+      stopAllKey: null,
+    };
+    store.replaceBoards(data, 'Added your backup', 'from-backup');
+    expect(state().boardId).toBe('from-backup');
+    expect(state().data.boards.map((b) => b.name)).toEqual(['My sounds', 'From backup']);
+
+    store.undo.undoLatest();
+    expect(state().boardId).toBe(before);
+    expect(state().data.boards.map((b) => b.name)).toEqual(['My sounds']);
+  });
+
+  it('opens the first board when the board it is asked for is not there', async () => {
+    const { store, state } = await setup();
+    store.replaceBoards(
+      { boards: [{ id: 'a', name: 'A', sounds: [] }, { id: 'b', name: 'B', sounds: [] }], masterVolume: 1, stopAllKey: null },
+      'Replaced your sounds',
+      'nowhere',
+    );
+    expect(state().boardId).toBe('a');
   });
 });

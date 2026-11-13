@@ -378,6 +378,24 @@
   gap: 12px;
 }
 
+/* ---------- Backup and restore ---------- */
+
+.backup-choice .ss-message-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-wrap: anywhere;
+}
+
+.backup-reminder {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.backup-reminder .ss-message-body {
+  flex: 1 1 14rem;
+}
+
 .ss-notices:empty {
   display: none;
 }
@@ -1062,6 +1080,21 @@ fieldset.ss-field > legend {
   max-width: min(560px, 100%);
   background: color-mix(in srgb, var(--app-live) 16%, var(--app-panel));
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+
+/* Inside a pop-up the messages get a row of their own under the content, so they never cover a button. */
+.ss-dialog > .ss-toasts {
+  position: static;
+  flex: 0 0 auto;
+  order: 1;
+  padding: 10px 12px calc(10px + var(--safe-bottom));
+  border-top: 1px solid var(--app-border);
+  background: var(--app-panel);
+}
+
+.ss-dialog > .ss-toasts:empty {
+  padding: 0;
+  border: 0;
 }
 
 .ss-undo {

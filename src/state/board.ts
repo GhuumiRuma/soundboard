@@ -111,8 +111,11 @@ export interface BoardStore {
   play(soundId: string): Promise<PlayResult>;
   stopAll(): void;
   updateSettings(changes: Partial<AppSettings>): void;
-  /** Takes her boards from somewhere else (a restored backup). The old ones can be brought back with Undo. */
-  replaceBoards(data: BoardsData, message?: string): void;
+  /**
+   * Takes her boards from somewhere else (a restored backup). The old ones can be brought back with Undo.
+   * `boardId` is the board to open afterwards; the first one if it is left out.
+   */
+  replaceBoards(data: BoardsData, message?: string, boardId?: string): void;
   /** Lets the page tell her something. It goes away by itself. */
   showNotice(text: string): void;
   addProblem(message: string): void;
@@ -470,13 +473,13 @@ export function createBoardStore(deps: BoardDeps): BoardStore {
       storage.saveSettings(settings).catch((error) => addProblem(problemFrom(error, storageMessages.failed)));
     },
 
-    replaceBoards(data, message = 'Replaced your sounds') {
+    replaceBoards(data, message = 'Replaced your sounds', boardId) {
       const before = get().data;
       const boardBefore = get().boardId;
       const next = ops.normalizeBoards(data);
       engine.stopAll();
       engine.setMasterVolume(next.masterVolume);
-      apply(next, { flush: true, boardId: next.boards[0].id });
+      apply(next, { flush: true, boardId: boardId ?? next.boards[0].id });
       undo.offer({
         message,
         holds: [...ops.referencedMediaIds(before)],

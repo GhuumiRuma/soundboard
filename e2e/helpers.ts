@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 export const PHONE = { width: 390, height: 844 };
 export const TABLET = { width: 820, height: 1180 };
@@ -49,4 +49,36 @@ export function addButton(page: Page) {
 export async function addSound(page: Page, fileName: string, seconds = 0.6, hz = 440): Promise<void> {
   const [chooser] = await Promise.all([page.waitForEvent('filechooser'), addButton(page).click()]);
   await chooser.setFiles({ name: fileName, mimeType: 'audio/wav', buffer: makeWav(seconds, hz) });
+}
+
+/** True when nothing is drawn over the middle of the element, so a tap or a click would reach it. */
+export function isClear(locator: Locator): Promise<boolean> {
+  return locator.evaluate((el) => {
+    const box = el.getBoundingClientRect();
+    const top = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+    if (top === el || el.contains(top)) return true;
+    // A switch or radio is often drawn by its label, which is what a tap really reaches.
+    const label = el.closest('label');
+    return !!top && !!label && label.contains(top);
+  });
+}
+
+/**
+ * Presses Tab through whatever is open, up to `limit` times, and returns a description of every focused
+ * control that was hidden under something else (a pop-up message, say). An empty list is a pass.
+ */
+export async function hiddenWhileTabbing(page: Page, limit = 40): Promise<string[]> {
+  const hidden: string[] = [];
+  let first: string | null = null;
+  for (let i = 0; i < limit; i++) {
+    await page.keyboard.press('Tab');
+    const focused = page.locator(':focus').first();
+    // Leaving the end of a pop-up hands focus to the browser itself for one press.
+    if ((await focused.count()) === 0) continue;
+    const label = await focused.evaluate((el) => `${el.tagName.toLowerCase()} "${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 40)}"`);
+    if (first === null) first = label;
+    else if (label === first) break;
+    if (!(await isClear(focused))) hidden.push(label);
+  }
+  return hidden;
 }

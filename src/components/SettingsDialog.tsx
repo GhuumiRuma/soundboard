@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { useIsPhone, useMediaQuery } from '../hooks/useMediaQuery';
 import { setThemePref, useTheme, type ThemePref } from '../state/theme';
 import { ui, useUi } from '../state/ui';
+import { BackupSection } from './Backup';
 import { Dialog } from './Dialog';
 import { SoundKeysSwitch, StopAllKeyField } from './SoundKeys';
 
@@ -64,6 +65,7 @@ export function SettingsDialog() {
     <Dialog open={open} title="Settings" onClose={ui.closeSettings} sheet={isPhone}>
       <ThemeSection />
       <SoundKeysSection />
+      <BackupSection />
       <AboutSection />
     </Dialog>
   );

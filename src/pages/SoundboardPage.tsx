@@ -1,4 +1,5 @@
 import { BoardCard } from '../components/BoardCard';
+import { BackupReminder } from '../components/Backup';
 import { BoardTabs, BOARD_PANEL_ID, boardTabId } from '../components/BoardTabs';
 import { Dialog } from '../components/Dialog';
 import { EmptyBoard } from '../components/EmptyBoard';
@@ -59,6 +60,7 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
           </div>
         )}
         <SoundKeyNotice />
+        <BackupReminder />
       </div>
 
       {!isPhone && <TopControls />}
