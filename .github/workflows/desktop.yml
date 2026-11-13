@@ -1,0 +1,232 @@
+name: Desktop apps
+
+# Builds the Windows installer and the Mac disk image on every push to main (or by hand) and keeps the
+# "desktop-latest" release pointing at the newest pair. Neither app is signed with a paid certificate: the
+# Mac app is ad-hoc signed (Apple Silicon refuses to run an unsigned app), and both show a one-time
+# "unknown publisher" warning the first time they are opened. The release notes explain how to get past it.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'android/**'
+      - '.github/workflows/android.yml'
+      - '.github/workflows/ci.yml'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+# The build jobs run other people's build scripts, so they only get to read. Only the publish job may write.
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  # main is never cancelled part way: a run stopped between deleting the old release and creating the new
+  # one would leave the download links dead. A newer run waits its turn instead.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: Windows installer
+            os: windows-latest
+            file: Soundboard-Windows-Setup.exe
+            built: src-tauri/target/release/bundle/nsis/*-setup.exe
+            args: ''
+            rust-targets: ''
+          - label: Mac disk image
+            os: macos-latest
+            file: Soundboard-Mac.dmg
+            built: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            args: --target universal-apple-darwin
+            rust-targets: aarch64-apple-darwin,x86_64-apple-darwin
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust-targets }}
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          cache-on-failure: true
+      - run: npm ci
+
+      # Every build gets its own version (1.<run number>.0) so an installer always says which build it is.
+      # This only edits the checkout on the runner; the number is never committed.
+      - name: Number this build
+        shell: bash
+        env:
+          APP_VERSION: 1.${{ github.run_number }}.0
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "src-tauri/tauri.conf.json";
+            const conf = JSON.parse(fs.readFileSync(file, "utf8"));
+            conf.version = process.env.APP_VERSION;
+            fs.writeFileSync(file, JSON.stringify(conf, null, 2) + "\n");
+            console.log("App version: " + conf.version);
+          '
+
+      # No tagName or releaseId here, so the action only builds. The publish job below makes the release.
+      - uses: tauri-apps/tauri-action@v1
+        with:
+          args: ${{ matrix.args }}
+
+      - name: Give the installer its fixed name
+        shell: bash
+        env:
+          BUILT: ${{ matrix.built }}
+          FILE: ${{ matrix.file }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          found=( $BUILT )
+          if [ "${#found[@]}" -ne 1 ]; then
+            echo "::error::Expected exactly one file matching $BUILT but found ${#found[@]}."
+            find src-tauri/target -type f -path '*bundle*' \( -name '*.exe' -o -name '*.dmg' -o -name '*.msi' \) || true
+            exit 1
+          fi
+          mkdir -p installer
+          cp "${found[0]}" "installer/$FILE"
+          ls -l installer
+
+      # Read the facts back out of the finished disk image, so what is checked is what people download.
+      - name: Check the Mac app is universal and signed
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          mount_dir="$RUNNER_TEMP/dmg"
+          mkdir -p "$mount_dir"
+          hdiutil attach "installer/Soundboard-Mac.dmg" -nobrowse -readonly -mountpoint "$mount_dir"
+          trap 'hdiutil detach "$mount_dir" -force > /dev/null || true' EXIT
+          app="$mount_dir/Soundboard.app"
+          ls -la "$mount_dir"
+          [ -d "$app" ] || { echo "::error::Soundboard.app is not inside the disk image."; exit 1; }
+          [ -e "$mount_dir/Applications" ] || { echo "::error::The disk image has no Applications shortcut to drag the app onto."; exit 1; }
+          plist="$app/Contents/Info.plist"
+          exe="$app/Contents/MacOS/$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$plist")"
+
+          archs="$(lipo -archs "$exe")"
+          echo "Architectures: $archs"
+          case "$archs" in *arm64*x86_64*|*x86_64*arm64*) ;; *) echo "::error::The Mac app is not universal (found: $archs)."; exit 1 ;; esac
+
+          codesign --verify --deep --strict --verbose=2 "$app"
+          signature="$(codesign -dv "$app" 2>&1)"
+          printf '%s\n' "$signature"
+          printf '%s\n' "$signature" | grep -q 'Signature=adhoc' || { echo "::error::The Mac app is not ad-hoc signed."; exit 1; }
+
+          entitlements="$(codesign -d --entitlements - "$app" 2>&1)"
+          printf '%s\n' "$entitlements"
+          printf '%s\n' "$entitlements" | grep -q 'com.apple.security.device.audio-input' || { echo "::error::The microphone entitlement is missing from the signature."; exit 1; }
+
+          mic_text="$(/usr/libexec/PlistBuddy -c 'Print :NSMicrophoneUsageDescription' "$plist")"
+          minimum="$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$plist")"
+          version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist")"
+          {
+            echo "### Mac app"
+            echo "- Version: \`$version\`, needs macOS \`$minimum\` or newer"
+            echo "- Architectures in the binary: \`$archs\`"
+            echo "- Signature: ad-hoc, with the microphone entitlement"
+            echo "- Microphone question reads: \"$mic_text\""
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.file }}
+          path: installer/${{ matrix.file }}
+          if-no-files-found: error
+
+      # Temporary: Cargo.lock cannot be made on the machine that wrote this workflow (it has no Rust), so
+      # it is collected here once and committed. Remove this step after that.
+      - uses: actions/upload-artifact@v7
+        if: runner.os == 'Windows'
+        with:
+          name: Cargo.lock
+          path: src-tauri/Cargo.lock
+          if-no-files-found: warn
+          retention-days: 3
+
+  publish:
+    name: Publish the release
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: Soundboard-*
+          path: release
+          merge-multiple: true
+
+      - name: Recreate the "desktop-latest" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          COMMIT: ${{ github.sha }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          ls -l release
+          for file in Soundboard-Windows-Setup.exe Soundboard-Mac.dmg; do
+            [ -s "release/$file" ] || { echo "::error::release/$file is missing or empty."; exit 1; }
+          done
+
+          cat > release-notes.md <<'NOTES'
+          The newest Soundboard for computers. Download the file for your computer:
+
+          - **Soundboard-Windows-Setup.exe** for Windows 10 and 11
+          - **Soundboard-Mac.dmg** for Macs (Apple Silicon and Intel)
+
+          These apps aren't signed with a paid certificate, so Windows and macOS warn you the first time. They are safe to open; this is how to get past the warning.
+
+          **Windows:** double-click the setup file. If Windows says "Windows protected your PC", click **More info**, then **Run anyway**. It installs just for you and never asks for an administrator password.
+
+          **Mac:** open the .dmg and drag Soundboard onto Applications. Open Soundboard from Applications. If the Mac says it can't verify the app, open **System Settings > Privacy & Security**, scroll down and click **Open Anyway** (on older versions of macOS you can instead right-click the app and choose **Open**). Allow the microphone when asked, if you want to record sounds. If the Mac says the app is "damaged", open Terminal and run: xattr -cr /Applications/Soundboard.app
+
+          Your sounds are kept on your computer, and the sound keys work even while another app is in front.
+
+          Built from commit @COMMIT@.
+          NOTES
+          sed -i "s/@COMMIT@/${COMMIT}/" release-notes.md
+
+          # This release is replaced on every build, so the old one goes first.
+          if gh release view desktop-latest > /dev/null 2>&1; then
+            gh release delete desktop-latest --yes --cleanup-tag
+          fi
+          gh api -X DELETE "repos/$GH_REPO/git/refs/tags/desktop-latest" > /dev/null 2>&1 || true
+
+          # --latest=false keeps GitHub's "Latest release" (and any /releases/latest link) on the Android release.
+          gh release create desktop-latest release/Soundboard-Windows-Setup.exe release/Soundboard-Mac.dmg \
+            --title "Latest Windows and Mac apps (build ${RUN_NUMBER})" \
+            --target "$COMMIT" \
+            --latest=false \
+            --notes-file release-notes.md
+
+      - name: Check both downloads are on the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          gh release view desktop-latest --json assets --jq '.assets[] | "\(.name) \(.size) bytes"' | tee assets.txt
+          for file in Soundboard-Windows-Setup.exe Soundboard-Mac.dmg; do
+            grep -q "^$file [1-9][0-9]* bytes$" assets.txt || { echo "::error::$file is not on the desktop-latest release."; exit 1; }
+            url="https://github.com/$GH_REPO/releases/download/desktop-latest/$file"
+            # Ask for the first byte only: enough to prove the public link works without downloading the file.
+            curl --fail --silent --show-error --location --range 0-0 --retry 5 --retry-delay 5 --retry-all-errors --output /dev/null "$url"
+            echo "$url answers"
+          done
