@@ -2,7 +2,8 @@ name: Android emulator check
 
 # Manual only (Actions tab > Android emulator check > Run workflow). Starts an Android phone in an emulator,
 # installs the latest published Soundboard.apk, opens it and checks it is still running 15 seconds later.
-# The screenshot and the phone's log are attached to the run as "Soundboard-emulator".
+# Then it switches the phone to dark mode and turns it on its side, and checks the app follows without
+# starting over. The screenshots of each stage and the phone's log are attached to the run as "Soundboard-emulator".
 on:
   workflow_dispatch:
 
