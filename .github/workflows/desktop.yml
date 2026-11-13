@@ -10,7 +10,9 @@ on:
     paths-ignore:
       - '**.md'
       - 'android/**'
-      - '.github/workflows/android.yml'
+      - 'capacitor.config.ts'
+      - 'scripts/android-*.mjs'
+      - '.github/workflows/android*.yml'
       - '.github/workflows/ci.yml'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
