@@ -1,0 +1,30 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.vite/
+*.local
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# Test output
+test-results/
+playwright-report/
+blob-report/
+
+# Secrets and signing keys: never commit these
+.env
+.env.*
+*.keystore
+*.jks
+*.p12
+*.pfx
+keystore.properties
+soundboard-signing/
+
+# Tauri (desktop)
+src-tauri/target/
+src-tauri/gen/schemas/
