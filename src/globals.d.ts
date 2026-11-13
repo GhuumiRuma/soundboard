@@ -13,3 +13,8 @@ interface Navigator {
   /** Lets sound play even when the iPhone's silent switch is on (Safari 17+). */
   audioSession?: { type: 'auto' | 'playback' | 'transient' | 'transient-solo' | 'ambient' | 'play-and-record' };
 }
+
+interface Window {
+  /** Very old Safari only has the prefixed name. */
+  webkitAudioContext?: typeof AudioContext;
+}

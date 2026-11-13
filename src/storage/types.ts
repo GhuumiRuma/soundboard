@@ -7,6 +7,8 @@ export interface MediaRecord {
   data: ArrayBuffer;
   ext: AudioExt;
   mime: string;
+  /** How many bytes the file is. It can be looked up without reading the file itself. */
+  size: number;
   created: number;
 }
 
@@ -60,6 +62,8 @@ export interface StorageBackend {
   getMedia(id: string): Promise<MediaRecord | undefined>;
   hasMedia(id: string): Promise<boolean>;
   mediaIds(): Promise<string[]>;
+  /** How big each stored file is, by id, without reading the files. */
+  mediaSizes(): Promise<Map<string, number>>;
   deleteMedia(ids: readonly string[]): Promise<void>;
   /** Asks the browser not to clear these sounds when it's short of room. Returns whether it agreed. */
   requestPersistence(): Promise<boolean>;

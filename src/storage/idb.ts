@@ -10,8 +10,8 @@ const DB_VERSION = 1;
 interface SoundboardDB extends DBSchema {
   /** Her boards ("boards") and device settings ("settings"). */
   state: { key: string; value: unknown };
-  /** The audio files, by id. */
-  media: { key: string; value: MediaRecord };
+  /** The audio files, by id. The size index lets us ask how big they are without reading them. */
+  media: { key: string; value: MediaRecord; indexes: { size: number } };
 }
 
 export function isQuotaError(error: unknown): boolean {
@@ -41,7 +41,7 @@ export class IdbStorage implements StorageBackend {
     const db: IDBPDatabase<SoundboardDB> = await openDB<SoundboardDB>(name, DB_VERSION, {
       upgrade(database) {
         database.createObjectStore('state');
-        database.createObjectStore('media', { keyPath: 'id' });
+        database.createObjectStore('media', { keyPath: 'id' }).createIndex('size', 'size');
       },
       blocking() {
         // A newer copy of the app wants to update the database. Let it.
@@ -85,7 +85,7 @@ export class IdbStorage implements StorageBackend {
         ...files.map((file) => {
           const id = file.id ?? newId();
           ids.push(id);
-          return tx.store.put({ id, data: file.data, ext: file.ext, mime: file.mime, created });
+          return tx.store.put({ id, data: file.data, ext: file.ext, mime: file.mime, size: file.data.byteLength, created });
         }),
         tx.done,
       ]);
@@ -105,6 +105,19 @@ export class IdbStorage implements StorageBackend {
 
   mediaIds(): Promise<string[]> {
     return this.db.getAllKeys('media');
+  }
+
+  async mediaSizes(): Promise<Map<string, number>> {
+    const sizes = new Map<string, number>();
+    const tx = this.db.transaction('media');
+    // A key cursor walks the size index and never reads the (big) audio files themselves.
+    let cursor = await tx.store.index('size').openKeyCursor();
+    while (cursor) {
+      sizes.set(cursor.primaryKey, cursor.key);
+      cursor = await cursor.continue();
+    }
+    await tx.done;
+    return sizes;
   }
 
   async deleteMedia(ids: readonly string[]): Promise<void> {

@@ -98,6 +98,21 @@ describe.each(backends)('%s', (_label, open) => {
     expect(second!.data.byteLength).toBe(wav.byteLength);
   });
 
+  it('says how big each audio file is without needing the file', async () => {
+    const [a, b] = await storage.putMedia([
+      { data: new ArrayBuffer(10), ext: 'wav', mime: 'audio/wav' },
+      { data: new ArrayBuffer(2500), ext: 'mp3', mime: 'audio/mpeg' },
+    ]);
+    expect(await storage.mediaSizes()).toEqual(
+      new Map([
+        [a, 10],
+        [b, 2500],
+      ]),
+    );
+    await storage.deleteMedia([a]);
+    expect(await storage.mediaSizes()).toEqual(new Map([[b, 2500]]));
+  });
+
   it('deletes audio files, and ignores ones that are not there', async () => {
     const [a, b] = await storage.putMedia([
       { data: bytesOf(1), ext: 'wav', mime: 'audio/wav' },

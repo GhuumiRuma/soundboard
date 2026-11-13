@@ -37,7 +37,7 @@ export class MemoryStorage implements StorageBackend {
     const created = Date.now();
     return files.map((file) => {
       const id = file.id ?? newId();
-      this.media.set(id, { id, data: file.data.slice(0), ext: file.ext, mime: file.mime, created });
+      this.media.set(id, { id, data: file.data.slice(0), ext: file.ext, mime: file.mime, size: file.data.byteLength, created });
       return id;
     });
   }
@@ -53,6 +53,10 @@ export class MemoryStorage implements StorageBackend {
 
   async mediaIds(): Promise<string[]> {
     return [...this.media.keys()];
+  }
+
+  async mediaSizes(): Promise<Map<string, number>> {
+    return new Map([...this.media].map(([id, record]) => [id, record.size]));
   }
 
   async deleteMedia(ids: readonly string[]): Promise<void> {
