@@ -1,0 +1,77 @@
+name: Desktop publish probe
+
+# Temporary. The publish job of "Desktop apps" gets "403 Resource not accessible by integration" when it creates the
+# release, although the same steps work for the Android release. This tries each way of creating a release and
+# prints which ones the workflow token may use. It is deleted as soon as the answer is known.
+on: workflow_dispatch
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    name: ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: with a checkout
+            checkout: true
+            repo: ''
+          - label: without a checkout
+            checkout: false
+            repo: ${{ github.repository }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ matrix.repo }}
+    steps:
+      - uses: actions/checkout@v7
+        if: matrix.checkout
+
+      - name: Try each way of creating a release
+        shell: bash
+        run: |
+          set -u
+          repo="${{ github.repository }}"
+          old=1b6aabec95f89a696b517bf2f340f17ff64479f0
+          mid="$(gh api "repos/$repo/commits/daffec8" --jq .sha)"
+          head="$(gh api "repos/$repo/commits/main" --jq .sha)"
+          echo "old=$old"
+          echo "mid=$mid"
+          echo "head=$head"
+          echo hello > probe.txt
+
+          # Drafts are not found by tag, so every release with this tag is removed by its id.
+          cleanup() {
+            for id in $(gh api "repos/$repo/releases" --paginate --jq '.[] | select(.tag_name == "desktop-probe") | .id'); do
+              gh api -X DELETE "repos/$repo/releases/$id" > /dev/null 2>&1 || true
+            done
+            gh api -X DELETE "repos/$repo/git/refs/tags/desktop-probe" > /dev/null 2>&1 || true
+          }
+
+          try() {
+            name="$1"
+            shift
+            cleanup
+            if out="$(gh release create desktop-probe probe.txt --title probe --notes probe "$@" 2>&1)"; then
+              echo "OK      $name"
+            else
+              echo "FAILED  $name :: $out"
+            fi
+          }
+
+          try "target is an old commit, latest=false" --target "$old" --latest=false
+          try "target is an old commit" --target "$old"
+          try "target is the middle commit" --target "$mid"
+          try "target is the tip of main, latest=false" --target "$head" --latest=false
+          try "target is the tip of main" --target "$head"
+          try "no target, latest=false" --latest=false
+          try "no target"
+
+          echo "--- the raw request for an old commit, with the answer's headers ---"
+          cleanup
+          gh api -i -X POST "repos/$repo/releases" -f tag_name=desktop-probe -f target_commitish="$old" -f name=probe -f body=probe -F draft=false || true
+          cleanup
+          echo "--- what is left ---"
+          gh release list --limit 10
