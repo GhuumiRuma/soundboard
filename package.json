@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build": "tsc -p . && vite build",
     "build:native": "tsc -p . && vite build --mode native",
+    "build:android": "npm run build:native && cap sync android",
     "preview": "vite preview --host",
     "typecheck": "tsc -p .",
     "test": "vitest run",
