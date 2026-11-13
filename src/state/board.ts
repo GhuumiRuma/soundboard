@@ -408,7 +408,7 @@ export function createBoardStore(deps: BoardDeps): BoardStore {
       const current = get().data;
       const next = ops.updateSound(current, soundId, changes);
       if (next === current) return;
-      apply(next);
+      apply(next, { flush: changes.hotkey !== undefined });
       if (changes.volume !== undefined) {
         const found = ops.findSound(next, soundId);
         if (found) engine.setSoundVolume(soundId, found.sound.volume);

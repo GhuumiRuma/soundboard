@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   captureKey,
+  eventCode,
   formatHeld,
   formatKey,
   isBrowserKey,
@@ -8,6 +9,7 @@ import {
   mainKeyFromCode,
   normalizeKeyString,
   parseKeyString,
+  safeKeyAdvice,
   toGlobalShortcut,
   type KeyEventLike,
 } from './keyString';
@@ -90,6 +92,30 @@ describe('captureKey', () => {
       expect(captureKey(press(code))).toEqual({ kind: 'unsupported' });
     }
   });
+
+  it('reads keys that another program sends without a key code, such as a Stream Deck', () => {
+    expect(captureKey(press('', { key: 'a', ctrlKey: true, altKey: true }))).toEqual({ kind: 'key', key: 'Ctrl+Alt+A' });
+    expect(captureKey(press('', { key: '7', ctrlKey: true }))).toEqual({ kind: 'key', key: 'Ctrl+7' });
+    expect(captureKey(press('', { key: 'F14' }))).toEqual({ kind: 'key', key: 'F14' });
+    expect(captureKey(press('', { key: ' ', ctrlKey: true }))).toEqual({ kind: 'key', key: 'Ctrl+Space' });
+    expect(captureKey(press('', { key: 'Control', ctrlKey: true }))).toEqual({ kind: 'modifiers', held: ['Ctrl'] });
+    expect(captureKey(press('', { key: '?' }))).toEqual({ kind: 'unsupported' });
+    expect(captureKey(press(''))).toEqual({ kind: 'unsupported' });
+  });
+
+  it('trusts the key code when there is one', () => {
+    expect(captureKey(press('Digit1', { key: '!', shiftKey: true, ctrlKey: true }))).toEqual({ kind: 'key', key: 'Ctrl+Shift+1' });
+  });
+});
+
+describe('eventCode', () => {
+  it('uses the code, or the key name when there is no code', () => {
+    expect(eventCode({ code: 'KeyB', key: 'b' })).toBe('KeyB');
+    expect(eventCode({ code: '', key: 'Escape' })).toBe('Escape');
+    expect(eventCode({ code: '', key: 'Backspace' })).toBe('Backspace');
+    expect(eventCode({ code: '', key: 'Dead' })).toBe('');
+    expect(eventCode({ code: '' })).toBe('');
+  });
 });
 
 describe('mainKeyFromCode', () => {
@@ -156,6 +182,13 @@ describe('keyWarning', () => {
 
   it('has nothing to say about text that is not a key', () => {
     expect(keyWarning('nonsense', web)).toBeNull();
+  });
+
+  it('uses the names this device uses', () => {
+    expect(keyWarning('A', { global: true, os: 'mac' })).toMatch(/Ctrl \+ Option \+ a number is a safer choice/);
+    expect(keyWarning('A', { global: false, os: 'windows' })).toMatch(/Ctrl \+ Alt \+ a number is a safer choice/);
+    expect(safeKeyAdvice()).toBe('Ctrl + Alt + a number');
+    expect(safeKeyAdvice('ios')).toBe('Ctrl + Option + a number');
   });
 });
 

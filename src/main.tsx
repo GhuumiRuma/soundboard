@@ -5,6 +5,7 @@ import './styles/components.css';
 import './styles/soundboard.css';
 import { App } from './App';
 import { installAudioUnlock } from './audio';
+import { startSoundKeys } from './keys/soundKeys';
 import { initPlatform } from './platform';
 import { getBoardStore } from './state';
 import { initTheme } from './state/theme';
@@ -16,6 +17,7 @@ async function start() {
   await openStorage();
   const store = getBoardStore();
   installAudioUnlock();
+  startSoundKeys();
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>

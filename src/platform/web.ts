@@ -11,7 +11,7 @@ class WindowSoundKeys implements SoundKeyHost {
   private listening = false;
 
   private onKeyDown = (e: KeyboardEvent) => {
-    if (e.repeat || e.isComposing || isTypingTarget(e.target)) return;
+    if (e.defaultPrevented || e.repeat || e.isComposing || isTypingTarget(e.target)) return;
     const pressed = captureKey(e);
     if (pressed.kind !== 'key') return;
     const run = this.bindings.get(pressed.key);

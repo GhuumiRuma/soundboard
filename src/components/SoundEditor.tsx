@@ -6,6 +6,7 @@ import type { SoundItem, Soundboard } from '../model/types';
 import { getBoardStore } from '../state';
 import { browseForReplacement, closeEditor, deleteSoundFromEditor, playSound } from '../state/actions';
 import { NameField } from './NameField';
+import { SoundShortcutField } from './SoundKeys';
 import { VolumeSlider } from './VolumeSlider';
 
 /** The words a screen reader says for each colour in the palette (the order matches PALETTE). */
@@ -119,6 +120,8 @@ export function SoundEditor({ sound, boards, currentBoardId, focusName }: SoundE
             </label>
             <VolumeSlider id={volumeId} value={sound.volume} onChange={(v) => store.changeSound(sound.id, { volume: v })} />
           </div>
+
+          <SoundShortcutField sound={sound} />
         </div>
       </div>
 

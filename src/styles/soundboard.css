@@ -13,6 +13,39 @@
   min-height: 34px;
 }
 
+.keys-switch {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+
+.keys-switch .ss-muted {
+  font-size: 13px;
+}
+
+.top-controls-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+}
+
+.top-controls-row .master-volume {
+  min-height: 36px;
+  flex: 1 1 360px;
+}
+
+.top-controls-row .hotkey-recorder {
+  flex: 1 1 320px;
+}
+
+@media (pointer: coarse) {
+  .top-controls-row .master-volume {
+    min-height: var(--tap);
+  }
+}
+
 .master-volume {
   display: flex;
   align-items: center;

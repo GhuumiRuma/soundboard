@@ -1,8 +1,9 @@
 import { useId } from 'react';
-import { useIsPhone } from '../hooks/useMediaQuery';
+import { useIsPhone, useMediaQuery } from '../hooks/useMediaQuery';
 import { setThemePref, useTheme, type ThemePref } from '../state/theme';
 import { ui, useUi } from '../state/ui';
 import { Dialog } from './Dialog';
+import { SoundKeysSwitch, StopAllKeyField } from './SoundKeys';
 
 const THEME_CHOICES: readonly { value: ThemePref; label: string }[] = [
   { value: 'dark', label: 'Dark' },
@@ -29,6 +30,19 @@ function ThemeSection() {
   );
 }
 
+function SoundKeysSection() {
+  const headingId = useId();
+  const touch = useMediaQuery('(pointer: coarse)');
+  return (
+    <section className="ss-dialog-section" aria-labelledby={headingId}>
+      <h3 id={headingId}>Sound keys</h3>
+      <SoundKeysSwitch />
+      <StopAllKeyField />
+      {touch && <p className="ss-muted ss-field-hint">Sound keys need a keyboard connected to this device. Without one, just tap the buttons.</p>}
+    </section>
+  );
+}
+
 function AboutSection() {
   const headingId = useId();
   return (
@@ -49,6 +63,7 @@ export function SettingsDialog() {
   return (
     <Dialog open={open} title="Settings" onClose={ui.closeSettings} sheet={isPhone}>
       <ThemeSection />
+      <SoundKeysSection />
       <AboutSection />
     </Dialog>
   );

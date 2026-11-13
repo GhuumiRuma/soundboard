@@ -378,6 +378,10 @@
   gap: 12px;
 }
 
+.ss-notices:empty {
+  display: none;
+}
+
 /* ---------- Dashed empty state ---------- */
 
 .ss-empty {
@@ -636,6 +640,102 @@ fieldset.ss-field > legend {
 @media (pointer: coarse) {
   .ss-switch {
     min-height: var(--tap);
+  }
+}
+
+/* ---------- Key recorder (from StreamStudio's .hotkey-* styles) ---------- */
+
+.hotkey-recorder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
+  align-items: center;
+  max-width: 480px;
+}
+
+.hotkey-recorder.inline {
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+  column-gap: 10px;
+  min-width: min(100%, 320px);
+}
+
+.hotkey-label,
+.hotkey-status {
+  grid-column: 1 / -1;
+}
+
+.hotkey-recorder.inline .hotkey-label {
+  grid-column: auto;
+}
+
+.hotkey-status {
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* An empty status line is always there for screen readers, so it must not leave a gap. */
+.hotkey-status:empty {
+  margin-top: -6px;
+}
+
+.hotkey-status.problem {
+  color: var(--app-error-text);
+  font-weight: 600;
+}
+
+.hotkey-status.warn {
+  color: var(--app-warn-text);
+}
+
+.hotkey-box {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--app-text) 32%, transparent);
+  border-radius: 8px;
+  background: var(--app-panel-2);
+  color: var(--app-text);
+  font-size: 14px;
+  text-align: left;
+  touch-action: manipulation;
+}
+
+.hotkey-box:hover {
+  border-color: color-mix(in srgb, var(--app-text) 55%, transparent);
+}
+
+.hotkey-box.recording {
+  border-color: var(--app-accent);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+}
+
+.hotkey-clear {
+  width: 36px;
+  min-height: 36px;
+  border: 1px solid color-mix(in srgb, var(--app-text) 32%, transparent);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--app-text);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.hotkey-clear:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--app-text) 8%, transparent);
+}
+
+.hotkey-clear:disabled {
+  opacity: 0.45;
+}
+
+@media (pointer: coarse) {
+  .hotkey-box,
+  .hotkey-clear {
+    min-height: var(--tap);
+  }
+
+  .hotkey-clear {
+    width: var(--tap);
   }
 }
 

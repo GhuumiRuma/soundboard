@@ -3,11 +3,13 @@ import { BoardTabs, BOARD_PANEL_ID, boardTabId } from '../components/BoardTabs';
 import { Dialog } from '../components/Dialog';
 import { EmptyBoard } from '../components/EmptyBoard';
 import { PageHeader } from '../components/PageHeader';
+import { SoundKeyNotice } from '../components/SoundKeys';
 import { EditorCard, SoundEditor } from '../components/SoundEditor';
 import { SoundTile } from '../components/SoundTile';
 import { TopControls } from '../components/TopControls';
 import { usePageDrop } from '../hooks/usePageDrop';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { formatKey } from '../keys/keyString';
 import { getPlatform } from '../platform';
 import { storageMessages } from '../storage';
 import { currentBoard, editingSound, getBoardStore, useBoard } from '../state';
@@ -26,6 +28,7 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
   const editing = useBoard(editingSound);
   const adding = useBoard((s) => s.adding);
   const persistent = useBoard((s) => s.persistent);
+  const stopAllKey = useBoard((s) => s.data.stopAllKey);
   const modalOpen = useUi((s) => s.settingsOpen || s.recorder !== null);
   const touch = useMediaQuery('(pointer: coarse)') || isPhone;
 
@@ -35,23 +38,28 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
     <div className="soundboard-page tools-page">
       <PageHeader title="Soundboard" description="Make big buttons for your sounds and play them with a tap or a key.">
         {!isPhone && (
-          <button type="button" className="btn btn-outline" onClick={stopAllSounds}>
-            Stop all sounds
-          </button>
+          <>
+            <button type="button" className="btn btn-outline" onClick={stopAllSounds}>
+              Stop all sounds
+            </button>
+            <span className="shortcut-label">Shortcut:</span>
+            <kbd className="ss-kbd">{formatKey(stopAllKey, os)}</kbd>
+          </>
         )}
         <button type="button" className="btn btn-outline" onClick={ui.openSettings}>
           <span aria-hidden="true">⚙️</span> Settings
         </button>
       </PageHeader>
 
-      {!persistent && (
-        <div className="ss-notices">
+      <div className="ss-notices">
+        {!persistent && (
           <div className="ss-warning">
             <span aria-hidden="true">⚠️</span>
             <div className="ss-message-body">{storageMessages.unavailable}</div>
           </div>
-        </div>
-      )}
+        )}
+        <SoundKeyNotice />
+      </div>
 
       {!isPhone && <TopControls />}
       <BoardTabs />

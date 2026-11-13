@@ -177,6 +177,8 @@ export function normalizeKeyString(input: string | null | undefined): string | n
 
 export interface KeyEventLike {
   code: string;
+  /** Only used when `code` is empty, which happens for keys sent by another program such as a Stream Deck. */
+  key?: string;
   ctrlKey: boolean;
   altKey: boolean;
   shiftKey: boolean;
@@ -197,10 +199,38 @@ export function heldModifiers(e: Pick<KeyEventLike, 'ctrlKey' | 'altKey' | 'shif
   return held;
 }
 
+const CODE_FROM_KEY: Record<string, string> = {
+  Control: 'ControlLeft',
+  Alt: 'AltLeft',
+  Shift: 'ShiftLeft',
+  Meta: 'MetaLeft',
+  Escape: 'Escape',
+  Tab: 'Tab',
+  Enter: 'Enter',
+  Backspace: 'Backspace',
+  Delete: 'Delete',
+  ' ': 'Space',
+  ArrowUp: 'ArrowUp',
+  ArrowDown: 'ArrowDown',
+  ArrowLeft: 'ArrowLeft',
+  ArrowRight: 'ArrowRight',
+};
+
+/** The KeyboardEvent.code for a key press. Some programs send keys with no code, so then the key's name stands in for it. */
+export function eventCode(e: Pick<KeyEventLike, 'code' | 'key'>): string {
+  if (e.code) return e.code;
+  const key = e.key ?? '';
+  if (/^[a-z]$/i.test(key)) return `Key${key.toUpperCase()}`;
+  if (/^[0-9]$/.test(key)) return `Digit${key}`;
+  if (/^F([1-9]|1[0-9]|2[0-4])$/.test(key)) return key;
+  return CODE_FROM_KEY[key] ?? '';
+}
+
 /** What a key press means as a sound key: a finished key, modifiers still being held, or a key that can't be used. */
 export function captureKey(e: KeyEventLike): KeyCapture {
-  if (MODIFIER_CODES.has(e.code)) return { kind: 'modifiers', held: heldModifiers(e) };
-  const main = mainKeyFromCode(e.code);
+  const code = eventCode(e);
+  if (MODIFIER_CODES.has(code)) return { kind: 'modifiers', held: heldModifiers(e) };
+  const main = mainKeyFromCode(code);
   if (!main) return { kind: 'unsupported' };
   return { kind: 'key', key: [...heldModifiers(e), main].join('+') };
 }
@@ -257,18 +287,24 @@ export function formatHeld(held: readonly Modifier[], os: DeviceOs = 'other'): s
 
 const SAFE_WITHOUT_MODIFIER = /^(F(1[3-9]|2[0-4])|Numpad.*)$/;
 
+/** "Ctrl + Alt + a number", written with the names this device uses (Option, not Alt, on a Mac). */
+export function safeKeyAdvice(os: DeviceOs = 'other'): string {
+  return `${modifierLabel('Ctrl', os)} + ${modifierLabel('Alt', os)} + a number`;
+}
+
 /**
  * Advice about a key that is valid but easy to regret: nothing but a plain key or Shift, which people press all the time.
  * Function keys F13 to F24 and the number pad are fine on their own.
  */
-export function keyWarning(key: string, where: { global: boolean }): string | null {
+export function keyWarning(key: string, where: { global: boolean; os?: DeviceOs }): string | null {
   const parsed = parseKeyString(key);
   if (!parsed) return null;
   const strong = parsed.modifiers.some((m) => m === 'Ctrl' || m === 'Alt' || m === 'Meta');
   if (strong || SAFE_WITHOUT_MODIFIER.test(parsed.key)) return null;
+  const advice = safeKeyAdvice(where.os);
   return where.global
-    ? "While your sound keys are on, games and other apps won't get this key. Ctrl + Alt + a number is a safer choice."
-    : 'This key plays the sound whenever you press it here, so it is easy to hit by mistake. Ctrl + Alt + a number is a safer choice.';
+    ? `While your sound keys are on, games and other apps won't get this key. ${advice} is a safer choice.`
+    : `This key plays the sound whenever you press it here, so it is easy to hit by mistake. ${advice} is a safer choice.`;
 }
 
 const BROWSER_KEYS = new Set([

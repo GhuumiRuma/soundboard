@@ -26,7 +26,7 @@ test.describe('the board, on a computer', () => {
     const long = page.getByRole('button', { name: 'Play long' });
     await long.click();
     await expect(long).toHaveAttribute('data-playing', 'true');
-    await page.getByRole('button', { name: 'Stop all sounds' }).click();
+    await page.getByRole('button', { name: 'Stop all sounds', exact: true }).click();
     await expect(long).toHaveAttribute('data-playing', 'false');
 
     expect(errors).toEqual([]);
@@ -108,7 +108,7 @@ test.describe('the board, on a computer', () => {
     await tile.focus();
     await page.keyboard.press('Enter');
     await expect(tile).toHaveAttribute('data-playing', 'true');
-    await page.getByRole('button', { name: 'Stop all sounds' }).focus();
+    await page.getByRole('button', { name: 'Stop all sounds', exact: true }).focus();
     await page.keyboard.press('Enter');
     await expect(tile).toHaveAttribute('data-playing', 'false');
 
@@ -138,13 +138,13 @@ test.describe('the board, on a phone', () => {
   test('has the bottom bar and opens the editor as a sheet', async ({ page }) => {
     const errors: string[] = [];
     await openApp(page, errors);
-    await expect(page.getByRole('button', { name: 'Stop all sounds' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Stop all sounds', exact: true })).toBeVisible();
     await addSound(page, 'tap.wav', 3);
 
     const tile = page.getByRole('button', { name: 'Play tap' });
     await tile.tap();
     await expect(tile).toHaveAttribute('data-playing', 'true');
-    await page.getByRole('button', { name: 'Stop all sounds' }).tap();
+    await page.getByRole('button', { name: 'Stop all sounds', exact: true }).tap();
     await expect(tile).toHaveAttribute('data-playing', 'false');
 
     await page.getByRole('button', { name: 'Edit tap' }).tap();
