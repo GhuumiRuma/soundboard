@@ -148,16 +148,6 @@ jobs:
           path: installer/${{ matrix.file }}
           if-no-files-found: error
 
-      # Temporary: Cargo.lock cannot be made on the machine that wrote this workflow (it has no Rust), so
-      # it is collected here once and committed. Remove this step after that.
-      - uses: actions/upload-artifact@v7
-        if: runner.os == 'Windows'
-        with:
-          name: Cargo.lock
-          path: src-tauri/Cargo.lock
-          if-no-files-found: warn
-          retention-days: 3
-
   publish:
     name: Publish the release
     needs: build
