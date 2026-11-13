@@ -1,0 +1,533 @@
+/*
+  The Soundboard screen. The sound buttons come from StreamStudio's Soundboard.razor.css.
+  The tile colours come from shades() in src/model/shades.ts, so white text keeps at least 4.5:1 contrast.
+*/
+
+.soundboard-page .top-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.soundboard-page .top-controls .ss-row {
+  min-height: 34px;
+}
+
+.master-volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.master-volume .ss-slider-row {
+  flex: 1 1 220px;
+  max-width: 420px;
+}
+
+.board-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.board-card .ss-row {
+  align-items: center;
+  gap: 12px;
+}
+
+.inline-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--app-muted);
+}
+
+.inline-field .ss-input {
+  width: 220px;
+}
+
+/* ---------- Sound buttons ---------- */
+
+.sound-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.sound-tile-wrap {
+  position: relative;
+  display: grid;
+}
+
+.sound-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 128px;
+  padding: 16px;
+  border: 1px solid var(--tile-border, #aa7ff3);
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--tile-top, #592aab), var(--tile-bottom, #341864));
+  color: #fff;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  text-align: left;
+  transform: translateY(0);
+  transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+@media (hover: hover) {
+  .sound-tile:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.sound-tile:focus-visible {
+  transform: translateY(-2px);
+}
+
+.sound-tile.playing {
+  filter: brightness(1.24);
+  transform: scale(0.98);
+}
+
+.sound-tile[data-playing='true'] {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7), 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.sound-tile[aria-busy='true'] {
+  cursor: progress;
+}
+
+.sound-tile[aria-busy='true'] .sound-emoji {
+  opacity: 0.55;
+}
+
+.sound-emoji {
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.sound-name {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* The key chip sits on the coloured button, so it carries its own dark background. */
+.sound-tile .ss-kbd {
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.34);
+  color: #eee8f8;
+}
+
+.sound-bars {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.sound-bars i {
+  display: block;
+  width: 4px;
+  height: 100%;
+  border-radius: 2px;
+  background: #fff;
+  transform-origin: bottom;
+  animation: sound-bar 0.8s ease-in-out infinite alternate;
+}
+
+.sound-bars i:nth-child(2) {
+  animation-delay: -0.3s;
+}
+
+.sound-bars i:nth-child(3) {
+  animation-delay: -0.55s;
+}
+
+@keyframes sound-bar {
+  from {
+    transform: scaleY(0.3);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sound-bars i {
+    animation: none;
+    transform: scaleY(0.7);
+  }
+}
+
+.sound-edit {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.34);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  touch-action: manipulation;
+}
+
+.sound-edit:hover,
+.sound-edit.is-editing {
+  background: rgba(0, 0, 0, 0.58);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.sound-edit:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+/* A bigger area to tap, without a bigger pill. */
+@media (pointer: coarse) {
+  .sound-edit {
+    padding: 7px 12px;
+  }
+
+  .sound-edit::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+}
+
+.sound-hint {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 13px;
+}
+
+.board-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--app-gap);
+}
+
+.board-panel:focus {
+  outline: none;
+}
+
+/* ---------- The edit card (and the phone's bottom sheet) ---------- */
+
+.editor-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.editor-card .ss-card-title {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.editor-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px 24px;
+}
+
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 44px);
+  gap: 6px;
+}
+
+.emoji-option {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--app-border);
+  border-radius: 10px;
+  background: var(--app-panel-2);
+  font-size: 22px;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+.emoji-option:hover {
+  border-color: color-mix(in srgb, var(--app-text) 45%, transparent);
+}
+
+.emoji-option[aria-checked='true'] {
+  border-color: var(--app-accent);
+  background: color-mix(in srgb, var(--app-accent) 22%, var(--app-panel-2));
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5);
+}
+
+.swatches {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.swatch {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  background: var(--swatch);
+  touch-action: manipulation;
+}
+
+.swatch[aria-checked='true'] {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px var(--app-accent);
+}
+
+.swatch[aria-checked='true']::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+}
+
+.swatch-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.swatches .ss-field-hint {
+  margin-left: 4px;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sound-file {
+  margin: -4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.move-row .ss-input {
+  flex: 1 1 180px;
+  width: auto;
+  max-width: 320px;
+}
+
+/* ---------- The phone bar ---------- */
+
+.phone-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px calc(12px + var(--safe-right)) calc(8px + var(--safe-bottom)) calc(12px + var(--safe-left));
+  border-top: 1px solid var(--app-border);
+  background: color-mix(in srgb, var(--app-panel) 94%, transparent);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.phone-bar-actions {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: 8px;
+}
+
+.phone-bar .btn {
+  min-height: 48px;
+  padding: 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.phone-bar .btn-stop {
+  font-size: 16px;
+}
+
+.phone-bar .master-volume {
+  flex-wrap: nowrap;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.phone-bar .master-volume .ss-slider-row {
+  flex: 1 1 auto;
+  max-width: none;
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 719.98px) {
+  .app-main {
+    padding: 16px calc(14px + var(--safe-right)) 24px calc(14px + var(--safe-left));
+  }
+
+  .ss-page-header {
+    flex-wrap: nowrap;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .ss-page-header h1 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .ss-page-header-description {
+    display: none;
+  }
+
+  .ss-card {
+    padding: 14px;
+  }
+
+  .soundboard-page {
+    gap: 12px;
+  }
+
+  .sound-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .board-tabs {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    gap: 0;
+  }
+
+  .board-tabs .ss-row {
+    display: none;
+  }
+
+  .ss-tabs {
+    gap: 8px;
+    padding: 2px 2px 6px;
+    margin: 0 -2px;
+    border-bottom: 0;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ss-tab {
+    min-height: var(--tap);
+    padding: 0 16px;
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    background: var(--app-panel-2);
+    color: var(--app-text);
+    scroll-snap-align: start;
+  }
+
+  .ss-tab[aria-selected='true'] {
+    border-color: var(--app-accent-fill);
+    background: var(--app-accent-fill);
+    color: #fff;
+  }
+
+  .ss-tab[aria-selected='true']::after {
+    display: none;
+  }
+
+  .ss-tab-add {
+    display: inline-block;
+    border-style: dashed;
+    background: transparent;
+    border-color: color-mix(in srgb, var(--app-text) 45%, transparent);
+  }
+
+  .board-card .ss-row {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .inline-field {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .inline-field-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .inline-field .ss-input {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .emoji-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .emoji-option {
+    width: 100%;
+  }
+
+  .swatch {
+    width: 44px;
+    height: 44px;
+  }
+
+  .editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (pointer: coarse) {
+  .swatch {
+    width: 44px;
+    height: 44px;
+  }
+}
