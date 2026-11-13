@@ -1,8 +1,9 @@
 name: Desktop publish probe
 
-# Temporary. The publish job of "Desktop apps" gets "403 Resource not accessible by integration" when it creates the
-# release, although the same steps work for the Android release. This tries each way of creating a release and
-# prints which ones the workflow token may use. It is deleted as soon as the answer is known.
+# Temporary. The first probe showed that a release whose tag points at an older commit that changed a workflow file
+# is refused (403, the token would need the "workflows" permission), while the tip of main or no target is fine.
+# This runs the publish steps one after the other, the way the publish job does, to prove the fixed shape works
+# before the slow build is run again. It is deleted as soon as the answer is known.
 on: workflow_dispatch
 
 permissions:
@@ -10,68 +11,41 @@ permissions:
 
 jobs:
   probe:
-    name: ${{ matrix.label }}
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - label: with a checkout
-            checkout: true
-            repo: ''
-          - label: without a checkout
-            checkout: false
-            repo: ${{ github.repository }}
     env:
       GH_TOKEN: ${{ github.token }}
-      GH_REPO: ${{ matrix.repo }}
+      GH_REPO: ${{ github.repository }}
     steps:
-      - uses: actions/checkout@v7
-        if: matrix.checkout
-
-      - name: Try each way of creating a release
+      - name: Create the release the way the publish job does, three times in a row
         shell: bash
         run: |
           set -u
-          repo="${{ github.repository }}"
-          old=1b6aabec95f89a696b517bf2f340f17ff64479f0
-          mid="$(gh api "repos/$repo/commits/daffec8" --jq .sha)"
-          head="$(gh api "repos/$repo/commits/main" --jq .sha)"
-          echo "old=$old"
-          echo "mid=$mid"
-          echo "head=$head"
           echo hello > probe.txt
+          echo "notes" > notes.md
 
-          # Drafts are not found by tag, so every release with this tag is removed by its id.
-          cleanup() {
-            for id in $(gh api "repos/$repo/releases" --paginate --jq '.[] | select(.tag_name == "desktop-probe") | .id'); do
-              gh api -X DELETE "repos/$repo/releases/$id" > /dev/null 2>&1 || true
-            done
-            gh api -X DELETE "repos/$repo/git/refs/tags/desktop-probe" > /dev/null 2>&1 || true
-          }
-
-          try() {
+          recreate() {
             name="$1"
             shift
-            cleanup
-            if out="$(gh release create desktop-probe probe.txt --title probe --notes probe "$@" 2>&1)"; then
+            if gh release view desktop-probe > /dev/null 2>&1; then
+              gh release delete desktop-probe --yes --cleanup-tag
+            fi
+            gh api -X DELETE "repos/$GH_REPO/git/refs/tags/desktop-probe" > /dev/null 2>&1 || true
+            if out="$(gh release create desktop-probe probe.txt --title probe --latest=false --notes-file notes.md "$@" 2>&1)"; then
               echo "OK      $name"
             else
               echo "FAILED  $name :: $out"
             fi
           }
 
-          try "target is an old commit, latest=false" --target "$old" --latest=false
-          try "target is an old commit" --target "$old"
-          try "target is the middle commit" --target "$mid"
-          try "target is the tip of main, latest=false" --target "$head" --latest=false
-          try "target is the tip of main" --target "$head"
-          try "no target, latest=false" --latest=false
-          try "no target"
+          recreate "first time, no target"
+          gh release view desktop-probe --json assets,isDraft,isPrerelease --jq '"  draft=\(.isDraft) prerelease=\(.isPrerelease) assets=\([.assets[].name])"' || true
+          curl --fail --silent --show-error --location --range 0-0 --retry 5 --retry-delay 5 --retry-all-errors --output /dev/null "https://github.com/$GH_REPO/releases/download/desktop-probe/probe.txt" && echo "  the public link answers"
+          recreate "second time, replacing the first, no target"
+          recreate "third time, target is main" --target main
 
-          echo "--- the raw request for an old commit, with the answer's headers ---"
-          cleanup
-          gh api -i -X POST "repos/$repo/releases" -f tag_name=desktop-probe -f target_commitish="$old" -f name=probe -f body=probe -F draft=false || true
-          cleanup
-          echo "--- what is left ---"
+          echo "--- clean up ---"
+          gh release delete desktop-probe --yes --cleanup-tag || true
+          gh api -X DELETE "repos/$GH_REPO/git/refs/tags/desktop-probe" > /dev/null 2>&1 || true
+          echo "--- what is left (the Android release should still be the Latest one) ---"
           gh release list --limit 10
+          git ls-remote --tags "https://github.com/$GH_REPO.git" | grep -c probe || true
