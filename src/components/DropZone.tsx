@@ -1,3 +1,6 @@
+import { RECORDER_TEXT } from '../audio/recorder/messages';
+import { ui } from '../state/ui';
+
 interface DropZoneProps {
   /** True while a file is being dragged over the page. */
   dragOver: boolean;
@@ -20,6 +23,9 @@ export function DropZone({ dragOver, adding, onBrowse }: DropZoneProps) {
       <div className="ss-dropzone-actions">
         <button type="button" className="btn btn-outline" onClick={onBrowse}>
           Add sounds
+        </button>
+        <button type="button" className="btn btn-outline" title={RECORDER_TEXT.recordHint} onClick={() => ui.openRecorder({ kind: 'new' })}>
+          {RECORDER_TEXT.recordButton}
         </button>
       </div>
     </div>

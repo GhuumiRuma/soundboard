@@ -165,8 +165,17 @@ export class SoundEngine {
    * every one of them. It also wakes sound up again after a phone call or switching apps.
    */
   unlock(): void {
+    this.context();
+  }
+
+  /**
+   * The browser's audio context, for the parts of the app that need more than playing sounds (the recorder listens
+   * through it). It is the one the whole app shares, so there is never a second one. Null when the browser has no sound.
+   */
+  context(): AudioContextLike | null {
     const ctx = this.safely(() => this.ensureContext());
     if (ctx) this.wake(ctx);
+    return ctx;
   }
 
   /** Wakes sound up again if it was paused, without starting it for the first time. */

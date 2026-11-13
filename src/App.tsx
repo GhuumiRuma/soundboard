@@ -1,5 +1,6 @@
 import { BOARD_PANEL_ID } from './components/BoardTabs';
 import { PhoneBar } from './components/PhoneBar';
+import { RecorderDialog } from './components/RecorderDialog';
 import { SettingsDialog } from './components/SettingsDialog';
 import { Toasts } from './components/Toasts';
 import { useIsPhone } from './hooks/useMediaQuery';
@@ -31,6 +32,7 @@ export function App() {
       {isPhone && <PhoneBar />}
       <Toasts />
       <SettingsDialog />
+      <RecorderDialog />
     </div>
   );
 }

@@ -1,6 +1,8 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
 import { getPlatform } from '../platform';
 import { getBoardStore, useBoard, type UndoOffer } from '../state';
+import { useTopDialog } from './dialogStack';
 
 function useSecondsLeft(expiresAt: number): number {
   const [now, setNow] = useState(() => Date.now());
@@ -44,8 +46,9 @@ export function Toasts() {
   const problems = useBoard((s) => s.problems);
   const notice = useBoard((s) => s.notice);
   const offer = useSyncExternalStore(store.undo.subscribe, store.undo.getOffer);
+  const dialog = useTopDialog();
 
-  return (
+  const messages = (
     <div className="ss-toasts" aria-live="polite">
       {problems.map((message, i) => (
         <div className="ss-problem" key={message}>
@@ -60,4 +63,7 @@ export function Toasts() {
       {offer && <UndoBar offer={offer} />}
     </div>
   );
+
+  // An open pop-up box covers the whole page, so the messages are shown inside it instead.
+  return dialog ? createPortal(messages, dialog) : messages;
 }

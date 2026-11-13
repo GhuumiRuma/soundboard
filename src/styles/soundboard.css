@@ -564,3 +564,212 @@
     height: 44px;
   }
 }
+
+/* ---------- Recording a sound ---------- */
+
+.recorder,
+.recorder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* While "Throw this recording away?" is showing, the rest waits. */
+.recorder-controls[inert] {
+  opacity: 0.45;
+}
+
+.recorder-opening {
+  margin: 0;
+  color: var(--app-muted);
+}
+
+.recorder-mic {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-panel-2);
+}
+
+.recorder-mic-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 14px;
+}
+
+.recorder-mic-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recorder-meter {
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-text) 18%, transparent);
+  overflow: hidden;
+}
+
+.recorder-meter-fill {
+  width: var(--level, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: var(--app-accent);
+}
+
+.recorder-record-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.recorder-record {
+  min-width: 170px;
+}
+
+.recorder-time {
+  color: var(--app-muted);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.recorder-wave {
+  padding: 8px 10px;
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius);
+  background: var(--app-panel-2);
+}
+
+.waveform {
+  display: block;
+  width: 100%;
+  height: 84px;
+}
+
+.waveform-kept,
+.waveform-cut {
+  fill: none;
+  stroke-width: 0.7;
+}
+
+.waveform-kept {
+  stroke: var(--app-accent);
+}
+
+.waveform-cut {
+  stroke: color-mix(in srgb, var(--app-text) 32%, transparent);
+}
+
+.waveform-edge {
+  stroke: var(--app-text);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.recorder-handles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.recorder-handle-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.recorder-stamp {
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.recorder-handle .ss-range {
+  flex: none;
+  width: 100%;
+}
+
+/* The Start slider is coloured the other way round: what comes after the handle is what is kept. */
+.ss-range.is-start::-webkit-slider-runnable-track {
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--app-text) 22%, transparent) 0,
+    color-mix(in srgb, var(--app-text) 22%, transparent) var(--fill),
+    var(--app-accent) var(--fill),
+    var(--app-accent) 100%
+  );
+}
+
+.ss-range.is-start::-moz-range-track {
+  background: var(--app-accent);
+}
+
+.ss-range.is-start::-moz-range-progress {
+  background: color-mix(in srgb, var(--app-text) 22%, transparent);
+}
+
+.recorder-play-row,
+.recorder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.recorder-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.recorder-copy-status {
+  margin: 0;
+  color: var(--app-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* The empty line is always there for screen readers, so it must not leave a gap. */
+.recorder-copy-status:empty {
+  margin-top: -6px;
+}
+
+.recorder-copy-status.is-problem {
+  color: var(--app-error-text);
+  font-weight: 600;
+}
+
+.recorder-confirm p {
+  margin: 0 0 10px;
+}
+
+.recorder-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 719.98px) {
+  .recorder-record {
+    flex: 1 1 auto;
+  }
+
+  .waveform {
+    height: 72px;
+  }
+
+  .recorder-actions .btn-big {
+    flex: 1 1 100%;
+  }
+
+  .recorder-actions .btn:not(.btn-big) {
+    flex: 1 1 0;
+  }
+}

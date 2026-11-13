@@ -5,6 +5,7 @@ import { EMOJIS, MAX_NAME_LENGTH, PALETTE } from '../model/rules';
 import type { SoundItem, Soundboard } from '../model/types';
 import { getBoardStore } from '../state';
 import { browseForReplacement, closeEditor, deleteSoundFromEditor, playSound } from '../state/actions';
+import { ui } from '../state/ui';
 import { NameField } from './NameField';
 import { SoundShortcutField } from './SoundKeys';
 import { VolumeSlider } from './VolumeSlider';
@@ -131,6 +132,9 @@ export function SoundEditor({ sound, boards, currentBoardId, focusName }: SoundE
         </button>
         <button type="button" className="btn btn-outline" onClick={() => void browseForReplacement(sound.id)}>
           Replace file
+        </button>
+        <button type="button" className="btn btn-outline" onClick={() => ui.openRecorder({ kind: 'replace', soundId: sound.id })}>
+          Replace by recording
         </button>
         <button type="button" className="btn btn-outline btn-danger-text" onClick={() => deleteSoundFromEditor(sound.id)}>
           Delete

@@ -1,10 +1,12 @@
+import { ui } from '../state/ui';
+
 interface EmptyBoardProps {
   /** Phones can't drop files, so the words change. */
   isPhone: boolean;
   onBrowse: () => void;
 }
 
-/** What an empty board says. Same words as StreamStudio, plus a button to get started. */
+/** What an empty board says. Same words as StreamStudio, plus buttons to get started. */
 export function EmptyBoard({ isPhone, onBrowse }: EmptyBoardProps) {
   return (
     <div className="ss-empty">
@@ -18,6 +20,9 @@ export function EmptyBoard({ isPhone, onBrowse }: EmptyBoardProps) {
       <div className="ss-empty-actions">
         <button type="button" className="btn btn-accent" onClick={onBrowse}>
           Add a sound
+        </button>
+        <button type="button" className="btn btn-outline" onClick={() => ui.openRecorder({ kind: 'new' })}>
+          Record a sound
         </button>
       </div>
     </div>
