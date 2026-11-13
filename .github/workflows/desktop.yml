@@ -210,9 +210,11 @@ jobs:
           gh api -X DELETE "repos/$GH_REPO/git/refs/tags/desktop-latest" > /dev/null 2>&1 || true
 
           # --latest=false keeps GitHub's "Latest release" (and any /releases/latest link) on the Android release.
+          # There is no --target on purpose: main usually moves on while the build runs, and GitHub refuses (403, the
+          # workflow token has no "workflows" permission) a tag on an older commit that changed a workflow file.
+          # The tag lands on the newest main instead; the notes name the commit that was built.
           gh release create desktop-latest release/Soundboard-Windows-Setup.exe release/Soundboard-Mac.dmg \
             --title "Latest Windows and Mac apps (build ${RUN_NUMBER})" \
-            --target "$COMMIT" \
             --latest=false \
             --notes-file release-notes.md
 
