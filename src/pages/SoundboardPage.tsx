@@ -3,6 +3,7 @@ import { BackupReminder } from '../components/Backup';
 import { BoardTabs, BOARD_PANEL_ID, boardTabId } from '../components/BoardTabs';
 import { Dialog } from '../components/Dialog';
 import { EmptyBoard } from '../components/EmptyBoard';
+import { InstallNotice, UpdateNotice } from '../components/Install';
 import { PageHeader } from '../components/PageHeader';
 import { SoundKeyNotice } from '../components/SoundKeys';
 import { EditorCard, SoundEditor } from '../components/SoundEditor';
@@ -53,6 +54,7 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
       </PageHeader>
 
       <div className="ss-notices">
+        <UpdateNotice />
         {!persistent && (
           <div className="ss-warning">
             <span aria-hidden="true">⚠️</span>
@@ -61,6 +63,7 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
         )}
         <SoundKeyNotice />
         <BackupReminder />
+        <InstallNotice />
       </div>
 
       {!isPhone && <TopControls />}

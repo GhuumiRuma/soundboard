@@ -22,3 +22,26 @@ jobs:
       - run: npm run build
       # The Android and desktop apps use this build, so make sure it keeps working too.
       - run: npm run build:native
+      # The apps keep their own copy of Soundboard, so they must not carry the web version's offline copy.
+      - name: Check the app build has no offline copy
+        run: test ! -e dist/sw.js && test ! -e dist/manifest.webmanifest
+
+  browser:
+    name: Browser checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Builds the web app, then opens it in a real browser and uses it.
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: browser-check-results
+          path: test-results
+          if-no-files-found: ignore

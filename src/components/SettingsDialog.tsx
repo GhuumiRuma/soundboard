@@ -4,6 +4,7 @@ import { setThemePref, useTheme, type ThemePref } from '../state/theme';
 import { ui, useUi } from '../state/ui';
 import { BackupSection } from './Backup';
 import { Dialog } from './Dialog';
+import { InstallSection } from './Install';
 import { SoundKeysSwitch, StopAllKeyField } from './SoundKeys';
 
 const THEME_CHOICES: readonly { value: ThemePref; label: string }[] = [
@@ -66,6 +67,7 @@ export function SettingsDialog() {
       <ThemeSection />
       <SoundKeysSection />
       <BackupSection />
+      <InstallSection />
       <AboutSection />
     </Dialog>
   );

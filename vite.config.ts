@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -16,6 +17,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     base,
+    // The plugin is off for the Android and desktop builds, so the web app's update helper has to come from somewhere else.
+    resolve: native
+      ? { alias: { 'virtual:pwa-register': fileURLToPath(new URL('./src/pwa/registerStub.ts', import.meta.url)) } }
+      : {},
     define: {
       __BUILD_ID__: JSON.stringify(BUILD_ID),
       __APP_VERSION__: JSON.stringify(pkg.version),

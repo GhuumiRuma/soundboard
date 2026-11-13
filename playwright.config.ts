@@ -8,10 +8,15 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 8_000 },
   workers: 1,
+  forbidOnly: !!process.env.CI,
+  // A slow shared computer can trip one check once in a while, so a second go is allowed there.
+  retries: process.env.CI ? 1 : 0,
   reporter: [['list']],
   use: {
     baseURL: `http://localhost:${PORT}/soundboard/`,
     permissions: ['microphone'],
+    screenshot: 'only-on-failure',
+    trace: 'retain-on-failure',
     launchOptions: {
       // A pretend microphone, so the recorder can be tested without a real one.
       args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],

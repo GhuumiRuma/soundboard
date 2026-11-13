@@ -7,11 +7,14 @@ import { App } from './App';
 import { installAudioUnlock } from './audio';
 import { startSoundKeys } from './keys/soundKeys';
 import { initPlatform } from './platform';
+import { initPwa } from './pwa/register';
 import { getBoardStore } from './state';
 import { initTheme } from './state/theme';
 import { openStorage } from './storage';
 
 async function start() {
+  // First, so the browser's "install this app" offer isn't missed while the rest starts up.
+  initPwa();
   await initPlatform();
   initTheme();
   await openStorage();

@@ -20,7 +20,7 @@
   width: 100%;
   max-width: 1180px;
   margin: 0 auto;
-  padding: 28px calc(28px + var(--safe-right)) calc(40px + var(--safe-bottom)) calc(28px + var(--safe-left));
+  padding: calc(28px + var(--safe-top)) calc(28px + var(--safe-right)) calc(40px + var(--safe-bottom)) calc(28px + var(--safe-left));
 }
 
 .app-loading {
@@ -387,13 +387,23 @@
   overflow-wrap: anywhere;
 }
 
-.backup-reminder {
+.backup-reminder,
+.pwa-note {
   flex-wrap: wrap;
   align-items: center;
 }
 
-.backup-reminder .ss-message-body {
+.backup-reminder .ss-message-body,
+.pwa-note .ss-message-body {
   flex: 1 1 14rem;
+}
+
+.pwa-note p {
+  margin: 0;
+}
+
+.pwa-note p + p {
+  margin-top: 4px;
 }
 
 .ss-notices:empty {

@@ -117,6 +117,26 @@ noscript {
   padding: 24px;
 }
 
+/*
+  Soundboard on an iPhone or iPad Home Screen draws under the status bar, and that bar always has white text.
+  In the light theme that would be white on white, so a dark band sits behind it.
+*/
+@media (display-mode: standalone) {
+  @supports (-webkit-touch-callout: none) {
+    :root[data-theme='light'] body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 5000;
+      height: var(--safe-top);
+      background: #111018;
+      pointer-events: none;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

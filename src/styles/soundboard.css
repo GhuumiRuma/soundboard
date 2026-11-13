@@ -433,7 +433,7 @@
 
 @media (max-width: 719.98px) {
   .app-main {
-    padding: 16px calc(14px + var(--safe-right)) 24px calc(14px + var(--safe-left));
+    padding: calc(16px + var(--safe-top)) calc(14px + var(--safe-right)) 24px calc(14px + var(--safe-left));
   }
 
   .ss-page-header {
