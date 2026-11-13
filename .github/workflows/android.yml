@@ -177,8 +177,19 @@ jobs:
         run: |
           set -euo pipefail
           echo "Open this page on your Android phone and tap **Soundboard.apk** to download it, then open the file to install. Android asks you to allow installing apps from your browser the first time. To update, install the newer Soundboard.apk over the old one: your boards and sounds stay. Built from ${{ github.sha }}." > "$RUNNER_TEMP/release-notes.md"
-          gh release delete android-latest --yes --cleanup-tag || true
-          gh release create android-latest Soundboard.apk \
-            --title "Latest Android app (build ${{ github.run_number }})" \
-            --target "${{ github.sha }}" \
-            --notes-file "$RUNNER_TEMP/release-notes.md"
+          # No target commit is given on purpose: main usually moves on while the build runs, and GitHub refuses (403, the
+          # workflow token has no "workflows" permission) a tag on an older commit that changed a workflow file.
+          # The tag lands on the newest main instead; the notes name the commit that was built.
+          # Each try starts from a clean slate, so a try that failed half way can't leave a release without its APK.
+          for attempt in 1 2 3; do
+            gh release delete android-latest --yes --cleanup-tag > /dev/null 2>&1 || true
+            if gh release create android-latest Soundboard.apk \
+              --title "Latest Android app (build ${{ github.run_number }})" \
+              --notes-file "$RUNNER_TEMP/release-notes.md"; then
+              exit 0
+            fi
+            echo "Publishing the release failed (try $attempt of 3)."
+            sleep 15
+          done
+          echo "::error::The new Soundboard.apk is built but could not be published, so the Android release page is empty until the next build."
+          exit 1

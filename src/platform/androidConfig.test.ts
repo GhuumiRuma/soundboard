@@ -79,6 +79,13 @@ describe('Android release', () => {
     expect(text).toContain("cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}");
   });
 
+  // Main keeps moving while a build runs. Tagging the older built commit then fails with a 403 whenever that
+  // commit changed a workflow file, and by then the old release is already deleted, leaving the page empty.
+  it('lets the release tag land on the newest main instead of pinning it to the built commit', () => {
+    expect(workflow()).toContain('gh release create android-latest');
+    expect(workflow()).not.toContain('--target');
+  });
+
   it('builds the web app for the phone and copies it into the Android project first', () => {
     expect(config.webDir).toBe('dist');
     expect(workflow()).toContain('npm run build:native');
