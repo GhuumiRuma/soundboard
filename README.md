@@ -123,7 +123,7 @@ Use this to turn the best part of a video or a long sound file into a button, li
 - The clip is saved as a WAV file, like a recording. Tick **Also save a copy as a file** to keep a copy outside Soundboard too.
 - Everything happens on your device. Nothing is uploaded, and nothing is saved until you press **Save sound**.
 - Your sound keys are switched off while Clip a sound is open, so a key doesn't play a sound over the file you're listening to.
-- Soundboard doesn't download videos from websites. Clip a sound only opens files that are already on your device.
+- Clip a sound only opens files that are already on your device. It doesn't get videos from YouTube or other websites, so save your own video to your device first (stream recordings and videos you filmed work well), then choose that file. Please only clip things you made or have permission to use.
 
 ## Back up and restore
 
@@ -173,7 +173,7 @@ Soundboard hasn't been tested on an iPhone, an iPad or a Mac. It was built and c
 - **On stream and Only me:** Soundboard plays through the device's normal sound output. It doesn't split a sound between you and your stream.
 - **A pop-out window that stays on top.**
 - **Recording the sound your speakers are playing.** Recording uses the device's microphone.
-- **Getting a video from a website.** Clip a sound only opens files that are already on your device.
+- **Getting a video from a website, such as YouTube.** Clip a sound only opens files that are already on your device. I tried a YouTube link option and left it out. When I tried it in November 2026, YouTube only let an outside app take about the first minute of a video's sound and refused the rest, and it changes how it checks apps without warning, so it would break more often than it worked. YouTube's rules also only allow downloading a video if the owner or YouTube says it's okay.
 - **Choosing which speakers or headphones to use.** It uses whatever the device is using.
 - **Linux.**
 - **App store listings.** You get the apps from the links above.

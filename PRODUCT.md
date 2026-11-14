@@ -75,8 +75,9 @@ work even while a game or another app is in front.
   docs make a claim about them.
 - **Left out on purpose:** On stream / Only me, the always-on-top pop-out window, recording from speakers,
   Linux, store listings, automatic desktop updates, choosing the output device, importing from Stream Studio,
-  getting a video from a website (Clip a sound only opens files already on the device), and an OGG decoder for
-  old iPhones.
+  getting a video from a website such as YouTube (Clip a sound only opens files already on the device; in
+  November 2026 YouTube only let an outside app take about the first minute of sound, and it changes how it
+  checks apps without warning), and an OGG decoder for old iPhones.
 
 ## Brand Commitments
 

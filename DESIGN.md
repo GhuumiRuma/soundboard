@@ -121,4 +121,5 @@ there is no flash of the wrong one.
 
 On stream / Only me, the always-on-top pop-out window, recording from speakers, Linux, store listings,
 automatic desktop updates, choosing the output device, importing from Stream Studio, getting a video from a
-website, and an OGG decoder for old iPhones.
+website such as YouTube (when tried in November 2026, YouTube only let an outside app take about the first
+minute of sound), and an OGG decoder for old iPhones.
