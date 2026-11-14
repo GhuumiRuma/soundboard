@@ -10,7 +10,7 @@ declare const __NATIVE_BUILD__: boolean;
 interface Navigator {
   /** Safari on iPhone and iPad sets this when the app was opened from the Home Screen. */
   standalone?: boolean;
-  /** Lets sound play even when the iPhone's silent switch is on (Safari 17+). */
+  /** Lets sound play even when the iPhone's silent switch is on (Safari 16.4+). */
   audioSession?: { type: 'auto' | 'playback' | 'transient' | 'transient-solo' | 'ambient' | 'play-and-record' };
 }
 
