@@ -6,6 +6,7 @@ import { installAdvice, type InstallAdvice } from '../pwa/advice';
 import { installMessages, installNote, installSteps, updateMessages } from '../pwa/messages';
 import { pwa, usePwa } from '../pwa/state';
 import { getBoardStore, useBoard } from '../state';
+import { Message } from './Message';
 
 /** Where the Windows and Mac apps live. Their sound keys work while a game is in front. */
 const DESKTOP_APP_URL = 'https://github.com/GhuumiRuma/soundboard/releases/tag/desktop-latest';
@@ -60,7 +61,7 @@ export function UpdateNotice() {
   };
 
   return (
-    <div className="ss-note pwa-note" role="status">
+    <Message className="ss-note pwa-note" role="status">
       <span aria-hidden="true">✨</span>
       <div className="ss-message-body">
         <p>
@@ -75,7 +76,7 @@ export function UpdateNotice() {
           {updateMessages.later}
         </button>
       </div>
-    </div>
+    </Message>
   );
 }
 
@@ -88,7 +89,7 @@ export function InstallNotice() {
 
   const oneTap = advice.help === 'button';
   return (
-    <div className="ss-note pwa-note" role="group" aria-label={installMessages.installSoundboard}>
+    <Message className="ss-note pwa-note" role="group" aria-label={installMessages.installSoundboard}>
       <span aria-hidden="true">📲</span>
       <div className="ss-message-body">
         {paragraphs.map((text, index) => (
@@ -113,7 +114,7 @@ export function InstallNotice() {
           </button>
         )}
       </div>
-    </div>
+    </Message>
   );
 }
 

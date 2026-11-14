@@ -12,6 +12,8 @@
   /* Filled buttons use a slightly deeper purple so white text on them keeps at least 4.5:1 contrast. */
   --app-accent-fill: #7c3aed;
   --app-accent-fill-hover: #6d28d9;
+  /* The ring that shows where the keyboard cursor is: StreamStudio's lighter purple on dark, a deeper one on light. */
+  --app-focus: color-mix(in srgb, var(--app-accent) 80%, white);
   --app-bg: #111018;
   --app-panel: #1b1824;
   --app-panel-2: #241f31;
@@ -53,6 +55,8 @@
   --app-warn-text: #8f4a00;
   --app-ok-text: #0f6b41;
   --app-busy-text: #6538cf;
+  /* StreamStudio's light purple ring is only about 2.9 to 1 on the light page. This one is about 7 to 1. */
+  --app-focus: var(--app-accent-fill-hover);
   color-scheme: light;
 }
 
@@ -108,7 +112,7 @@ p {
 }
 
 :focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--app-accent) 80%, white);
+  outline: 3px solid var(--app-focus);
   outline-offset: 3px;
 }
 

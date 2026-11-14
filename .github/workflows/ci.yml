@@ -28,7 +28,8 @@ jobs:
 
   browser:
     name: Browser checks
-    runs-on: ubuntu-latest
+    # A fixed version, so a newer "latest" can't break the browser's system packages one day.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

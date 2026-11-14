@@ -239,7 +239,7 @@
   outline-offset: 2px;
 }
 
-/* A bigger area to tap, without a bigger pill. */
+/* A bigger area to tap, without a bigger pill: about 45 px tall, so a thumb can't miss it. */
 @media (pointer: coarse) {
   .sound-edit {
     padding: 7px 12px;
@@ -248,7 +248,7 @@
   .sound-edit::after {
     content: '';
     position: absolute;
-    inset: -6px;
+    inset: -7px;
   }
 }
 
@@ -432,6 +432,11 @@
 /* ---------- Small screens ---------- */
 
 @media (max-width: 719.98px) {
+  /* The bar sticks to the bottom, so a button she reaches with Tab has to stop above it, not behind it. */
+  html {
+    scroll-padding-bottom: calc(var(--bar-height, 0px) + 12px);
+  }
+
   .app-main {
     padding: calc(16px + var(--safe-top)) calc(14px + var(--safe-right)) 24px calc(14px + var(--safe-left));
   }
@@ -503,6 +508,11 @@
 
   .ss-tab[aria-selected='true']::after {
     display: none;
+  }
+
+  /* The purple ring would vanish on the purple pill, so the ring on that one is white. */
+  .ss-tab[aria-selected='true']:focus-visible {
+    outline-color: #fff;
   }
 
   .ss-tab-add {

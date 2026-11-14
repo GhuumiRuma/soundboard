@@ -905,6 +905,16 @@ fieldset.ss-field > legend {
   background: color-mix(in srgb, var(--app-text) 7%, transparent);
 }
 
+/* The strip scrolls, and a scrolling box cuts off anything drawn outside it, so a tab keeps its ring inside itself. */
+.ss-tab:focus-visible {
+  outline-offset: -3px;
+}
+
+/* The ring takes the place of the underline while the tab has the keyboard cursor. */
+.ss-tab:focus-visible::after {
+  display: none;
+}
+
 .ss-tab[aria-selected='true'] {
   color: var(--app-text);
   font-weight: 600;
@@ -929,6 +939,12 @@ fieldset.ss-field > legend {
 
 .ss-tab-add {
   display: none;
+}
+
+@media (pointer: coarse) {
+  .ss-tab {
+    min-height: var(--tap);
+  }
 }
 
 /* ---------- Dialogs and the phone bottom sheet ---------- */
@@ -1029,7 +1045,7 @@ fieldset.ss-field > legend {
 @media (max-width: 719.98px) {
   .ss-dialog.is-sheet {
     width: 100%;
-    max-height: 92dvh;
+    max-height: min(92dvh, calc(100dvh - var(--safe-top) - 12px));
     margin: auto 0 0;
     border-bottom: 0;
     border-radius: 20px 20px 0 0;

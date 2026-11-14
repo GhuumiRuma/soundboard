@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { getPlatform } from '../platform';
 import { getBoardStore, useBoard, type UndoOffer } from '../state';
 import { useTopDialog } from './dialogStack';
+import { Message } from './Message';
 
 function useSecondsLeft(expiresAt: number): number {
   const [now, setNow] = useState(() => Date.now());
@@ -21,7 +22,7 @@ function UndoBar({ offer }: { offer: UndoOffer }) {
   const more = offer.pending - 1;
   const shortcut = getPlatform().os === 'mac' ? '⌘Z' : 'Ctrl+Z';
   return (
-    <div className="ss-undo">
+    <Message className="ss-undo">
       <span className="ss-undo-message">{offer.message}</span>
       {more > 0 && <span className="ss-undo-more">(+{more} more)</span>}
       <button type="button" className="btn btn-accent" title={`Undo (${shortcut})`} onClick={() => undo.undoLatest()}>
@@ -33,7 +34,7 @@ function UndoBar({ offer }: { offer: UndoOffer }) {
       <button type="button" className="ss-undo-close" aria-label="Dismiss" onClick={() => undo.dismiss()}>
         ×
       </button>
-    </div>
+    </Message>
   );
 }
 
@@ -51,13 +52,13 @@ export function Toasts() {
   const messages = (
     <div className="ss-toasts" aria-live="polite">
       {problems.map((message, i) => (
-        <div className="ss-problem" key={message}>
+        <Message className="ss-problem" key={message}>
           <span aria-hidden="true">⚠️</span>
           <div className="ss-message-body">{message}</div>
           <button type="button" className="ss-message-close" aria-label="Dismiss message" onClick={() => store.dismissProblem(i)}>
             ×
           </button>
-        </div>
+        </Message>
       ))}
       {notice && <div className="ss-toast">{notice}</div>}
       {offer && <UndoBar offer={offer} />}

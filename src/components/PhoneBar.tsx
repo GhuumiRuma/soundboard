@@ -13,7 +13,7 @@ export function PhoneBar() {
   useBarHeight(ref, true);
 
   return (
-    <div className="phone-bar" ref={ref} role="group" aria-label="Sound controls">
+    <div className="phone-bar" ref={ref} role="region" aria-label="Sound controls">
       <div className="phone-bar-actions">
         <button type="button" className="btn btn-stop btn-big" aria-label="Stop all sounds" onClick={stopAllSounds}>
           Stop all

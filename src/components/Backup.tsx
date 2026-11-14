@@ -3,6 +3,7 @@ import { backupMessages, lastBackupText, planReminder, snoozeUntil } from '../ba
 import { plural } from '../lib/plural';
 import { soundCount } from '../model/boards';
 import { getBackupController, getBoardStore, useBackupView, useBoard } from '../state';
+import { Message } from './Message';
 
 const BUSY_TEXT = {
   saving: 'Saving your backup…',
@@ -129,7 +130,7 @@ export function BackupReminder() {
   if (!plan.show) return null;
   const notIdle = view.phase !== 'idle';
   return (
-    <div className="ss-note backup-reminder" role="group" aria-labelledby={bodyId}>
+    <Message className="ss-note backup-reminder" role="group" aria-labelledby={bodyId}>
       <span aria-hidden="true">💾</span>
       <div className="ss-message-body" id={bodyId}>
         {backupMessages.reminder}
@@ -142,6 +143,6 @@ export function BackupReminder() {
           Not now
         </button>
       </div>
-    </div>
+    </Message>
   );
 }

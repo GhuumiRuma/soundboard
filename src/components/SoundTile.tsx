@@ -1,4 +1,4 @@
-import { memo, useId, useMemo, type CSSProperties } from 'react';
+import { memo, useMemo, type CSSProperties } from 'react';
 import { useLongPress } from '../hooks/useLongPress';
 import type { DeviceOs } from '../lib/device';
 import { formatKey, NOT_SET } from '../keys/keyString';
@@ -19,13 +19,13 @@ interface SoundTileProps {
  * before it ends). Right-click, or press and hold with a finger, opens the edit card too.
  */
 export const SoundTile = memo(function SoundTile({ sound, editing, os }: SoundTileProps) {
-  const keyId = useId();
   const playing = useSoundPlaying(sound.id);
   const loading = useSoundLoading(sound.id);
   const flashing = useFlashing(sound.id);
   const edit = () => getBoardStore().editSound(sound.id);
   const { handlers, wasLongPress } = useLongPress(edit);
   const colours = useMemo(() => shades(sound.color), [sound.color]);
+  const keyText = sound.hotkey ? formatKey(sound.hotkey, os) : NOT_SET;
 
   const style = {
     '--tile-top': colours.top,
@@ -41,8 +41,9 @@ export const SoundTile = memo(function SoundTile({ sound, editing, os }: SoundTi
         style={style}
         data-playing={playing}
         aria-busy={loading || undefined}
-        aria-label={`Play ${sound.name}`}
-        aria-describedby={sound.hotkey ? keyId : undefined}
+        // The spoken name holds everything the button shows (its name, then its key), so voice control and screen readers match what she sees.
+        // The spaces between the pieces below are not drawn, but they keep "Honk" and "Not set" from reading as one word.
+        aria-label={`Play ${sound.name}, ${keyText}`}
         onClick={() => {
           if (wasLongPress()) return;
           playSound(sound.id, { haptic: true });
@@ -55,11 +56,9 @@ export const SoundTile = memo(function SoundTile({ sound, editing, os }: SoundTi
       >
         <span className="sound-emoji" aria-hidden="true">
           {sound.emoji}
-        </span>
-        <strong className="sound-name">{sound.name}</strong>
-        <span className="ss-kbd" id={keyId}>
-          {sound.hotkey ? formatKey(sound.hotkey, os) : NOT_SET}
-        </span>
+        </span>{' '}
+        <strong className="sound-name">{sound.name}</strong>{' '}
+        <span className="ss-kbd">{keyText}</span>
         {playing && (
           <span className="sound-bars" aria-hidden="true">
             <i />
