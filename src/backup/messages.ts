@@ -40,7 +40,7 @@ export function addedMessage(boards: number, sounds: number, keysLeftOff: number
 const SKIP_WHY: Record<SkipReason, string> = {
   missing: "Its file isn't in the backup.",
   tooBig: importMessages.tooBig,
-  broken: "Its file is damaged, or isn't a sound I can use (MP3, WAV or OGG).",
+  broken: "Its file is damaged, or isn't a sound I can use (MP3, WAV, OGG or M4A).",
 };
 
 /** How many sounds are named one by one before the rest are only counted. */

@@ -36,3 +36,26 @@ export function fakeMp3Bytes(length = 64): ArrayBuffer {
 export function bytesOf(...values: number[]): ArrayBuffer {
   return new Uint8Array(values).buffer;
 }
+
+const letters = (text: string): number[] => Array.from(text, (c) => c.charCodeAt(0));
+const be32 = (n: number): number[] => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
+
+/** A box of an MP4 file: its size, its four-letter name, then what is inside it. */
+export function mp4Box(type: string, ...parts: ArrayLike<number>[]): number[] {
+  const body = parts.flatMap((part) => Array.from(part));
+  return [...be32(8 + body.length), ...letters(type), ...body];
+}
+
+/**
+ * The bytes of an MP4 file with the given brand and tracks ("soun" holds sound, "vide" holds a picture). It can't be
+ * played, but it is laid out like one. `moovLast` puts the index after the sound, like phone recorders do.
+ */
+export function fakeMp4Bytes(brand: string, tracks: readonly string[], options: { moovLast?: boolean; mdatBytes?: number } = {}): ArrayBuffer {
+  const ftyp = mp4Box('ftyp', letters(brand), be32(0), letters(brand));
+  const trak = (kind: string) =>
+    mp4Box('trak', mp4Box('tkhd', new Array(84).fill(0)), mp4Box('mdia', mp4Box('mdhd', new Array(24).fill(0)), mp4Box('hdlr', be32(0), be32(0), letters(kind), new Array(13).fill(0))));
+  const moov = mp4Box('moov', mp4Box('mvhd', new Array(100).fill(0)), ...tracks.map(trak));
+  const mdat = mp4Box('mdat', new Array(options.mdatBytes ?? 32).fill(7));
+  const order = options.moovLast ? [ftyp, mdat, moov] : [ftyp, moov, mdat];
+  return Uint8Array.from(order.flat()).buffer;
+}

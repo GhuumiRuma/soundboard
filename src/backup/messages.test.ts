@@ -49,7 +49,7 @@ describe('skippedMessages', () => {
     ).toEqual([
       "“Honk” wasn't restored. Its file isn't in the backup.",
       `“Bell” wasn't restored. ${importMessages.tooBig}`,
-      "“Pop” wasn't restored. Its file is damaged, or isn't a sound I can use (MP3, WAV or OGG).",
+      "“Pop” wasn't restored. Its file is damaged, or isn't a sound I can use (MP3, WAV, OGG or M4A).",
     ]);
   });
 

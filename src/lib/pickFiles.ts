@@ -1,5 +1,8 @@
 /** The file types a sound can be. Browsers use this to filter the file picker. */
-const SOUND_TYPES = '.mp3,.wav,.ogg,audio/mpeg,audio/wav,audio/x-wav,audio/ogg';
+const SOUND_TYPES = '.mp3,.wav,.ogg,.m4a,audio/mpeg,audio/wav,audio/x-wav,audio/ogg,audio/mp4,audio/x-m4a,audio/m4a';
+
+/** The file types a clip can be cut from: any sound, or any video (its sound is used). */
+const CLIP_TYPES = `${SOUND_TYPES},audio/*,video/*,.mp4,.m4v,.mov,.webm`;
 
 /** The file types a backup can be. Some phones call a zip file by other names. */
 export const BACKUP_TYPES = '.zip,application/zip,application/x-zip-compressed';
@@ -37,4 +40,10 @@ export function pickFiles(options: { accept: string; multiple: boolean }): Promi
 /** Opens the "pick a sound" box. */
 export function pickSoundFiles(options: { multiple: boolean }): Promise<File[]> {
   return pickFiles({ accept: SOUND_TYPES, multiple: options.multiple });
+}
+
+/** Opens the "pick a sound or video" box for Clip a sound. Resolves with the file, or null if she backs out. */
+export async function pickClipFile(): Promise<File | null> {
+  const [file] = await pickFiles({ accept: CLIP_TYPES, multiple: false });
+  return file ?? null;
 }

@@ -17,7 +17,7 @@ export function DropZone({ dragOver, adding, onBrowse }: DropZoneProps) {
         🔊
       </div>
       <div className="ss-dropzone-text">
-        <strong>Drop mp3, wav or ogg sounds</strong>
+        <strong>Drop mp3, wav, ogg or m4a sounds</strong>
         <span className="ss-dropzone-hint">{adding ? 'Adding your sounds…' : '20 MB max'}</span>
       </div>
       <div className="ss-dropzone-actions">

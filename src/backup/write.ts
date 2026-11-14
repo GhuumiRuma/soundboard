@@ -50,8 +50,8 @@ function addFile(zip: Zip, name: string, data: Uint8Array, mtime: Date, compress
 }
 
 /**
- * Packs her boards and every sound's audio into one ZIP file. MP3 and OGG files are already squeezed, so they go in
- * as they are; WAV files and the text are squeezed a little. Nothing here changes anything she has.
+ * Packs her boards and every sound's audio into one ZIP file. MP3, OGG and M4A files are already squeezed, so they go
+ * in as they are; WAV files and the text are squeezed a little. Nothing here changes anything she has.
  */
 export async function makeBackup(input: MakeBackupInput): Promise<MadeBackup> {
   const { data, readMedia } = input;
