@@ -168,6 +168,7 @@ Checked, with more than 750 automatic tests and more than 80 checks in a real Ch
 - Phone, tablet and computer sizes, in Dark and Light, with reduced motion turned on. No errors on the page, nothing serious in an accessibility scan, and finger-sized buttons on the phone layout.
 - Using Soundboard with only the keyboard.
 - Working offline, and the **A new version of Soundboard is ready** bar.
+- **The Windows app**, installed from the published installer on a Windows computer. It opens, and a sound can be added, played and stopped. The sound is still there after closing and opening the app again, and a sound key plays it while the app is minimised. Turning **Sound keys** off stops the keys, and turning them back on brings them back. The "Windows protected your PC" warning didn't come up in this check, so the steps for it above are how Windows normally behaves, not something I saw.
 
 Not tested, because they can't be tried from the computer Soundboard was built on:
 
