@@ -1,4 +1,5 @@
 import { BOARD_PANEL_ID } from './components/BoardTabs';
+import { ClipDialog } from './components/ClipDialog';
 import { PhoneBar } from './components/PhoneBar';
 import { RecorderDialog } from './components/RecorderDialog';
 import { SettingsDialog } from './components/SettingsDialog';
@@ -33,6 +34,7 @@ export function App() {
       <Toasts />
       <SettingsDialog />
       <RecorderDialog />
+      <ClipDialog />
     </div>
   );
 }

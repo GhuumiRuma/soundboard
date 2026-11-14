@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { CLIP_TEXT } from '../audio/clip/messages';
 import { RECORDER_TEXT } from '../audio/recorder/messages';
 import { useBarHeight } from '../hooks/useBarHeight';
 import { useBoard } from '../state';
@@ -23,6 +24,9 @@ export function PhoneBar() {
         </button>
         <button type="button" className="btn btn-outline" title={RECORDER_TEXT.recordHint} onClick={() => ui.openRecorder({ kind: 'new' })}>
           <span aria-hidden="true">🎙️</span> {RECORDER_TEXT.recordButton}
+        </button>
+        <button type="button" className="btn btn-outline" title={CLIP_TEXT.buttonHint} onClick={() => ui.openClipper()}>
+          <span aria-hidden="true">✂️</span> {CLIP_TEXT.short}
         </button>
       </div>
       <MasterVolume />

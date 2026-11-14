@@ -1,3 +1,4 @@
+import { CLIP_TEXT } from '../audio/clip/messages';
 import { ui } from '../state/ui';
 
 interface EmptyBoardProps {
@@ -23,6 +24,9 @@ export function EmptyBoard({ isPhone, onBrowse }: EmptyBoardProps) {
         </button>
         <button type="button" className="btn btn-outline" onClick={() => ui.openRecorder({ kind: 'new' })}>
           Record a sound
+        </button>
+        <button type="button" className="btn btn-outline" title={CLIP_TEXT.buttonHint} onClick={() => ui.openClipper()}>
+          {CLIP_TEXT.button}
         </button>
       </div>
     </div>

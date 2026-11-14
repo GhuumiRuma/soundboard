@@ -16,7 +16,7 @@ Stream Studio's own code was only read while building Soundboard. Nothing in it 
 | `SoundboardWindowPresenter.Shades()` | `src/model/shades.ts` | The gradient colours of a button, kept dark enough for its white text |
 | The Plain, Emoji and Color rules in the presenter | `src/model/rules.ts` | Names (48 characters, cut with …), emoji (2 characters), colours (`#RRGGBB`), volume (starts at 80%) |
 | `StudioModels.cs` (Soundboard, SoundItem) | `src/model/types.ts`, `src/model/boards.ts` | Boards and sounds, and the changes you can make to them |
-| `MediaLibrary.cs` | `src/storage/import.ts` | The 20 MB limit, telling MP3, WAV and OGG apart by their content, the friendly error messages |
+| `MediaLibrary.cs` | `src/storage/import.ts` | The 20 MB limit, telling MP3, WAV, OGG and M4A apart by their content, the friendly error messages |
 | `RecordingReview.cs`, `WavFile.cs`, `RecorderPresenter.cs` | `src/audio/recorder/` | Trim, waveform, WAV, turn-down and fades |
 | `UndoService` | `src/state/undo.ts` | The Undo bar and its 10 seconds |
 | `HotkeyRecorder.razor`, `HotkeyGesture.cs`, `HotkeyServiceContracts.cs` | `src/keys/`, `src/components/HotkeyRecorder.tsx` | The key recorder, "Not set", the warnings and the "Already used" messages |
@@ -57,8 +57,10 @@ there is no flash of the wrong one.
 ## Layouts
 
 - **Phone (under about 720 px):** two columns of buttons, board chips that scroll sideways, and a bar fixed to
-  the bottom with a big **Stop all**, the master volume, **Add** and **Record**. The editor and the recorder
-  open as a bottom sheet. Safe-area insets keep everything clear of notches and home bars.
+  the bottom with a big **Stop all**, the master volume, **Add**, **Record** and **Clip**. The four fit in one
+  row down to a 320 px screen (the emoji on them are dropped on the narrowest) and wrap to a second row if they
+  don't. The editor, the recorder and Clip a sound open as a bottom sheet. Safe-area insets keep everything
+  clear of notches and home bars.
 - **Tablet and computer:** Stream Studio's page: the title and the actions on top, the sound-keys card, the
   board tabs, the board card with its drop zone, the grid, and an edit card under it.
 
@@ -83,6 +85,12 @@ there is no flash of the wrong one.
 - **Press and hold opens the editor on a touch screen** (Stream Studio uses right-click), and doesn't play the
   sound. A tap plays when the finger lifts, so scrolling past a button stays silent.
 - **Replacing a file can be undone**, and a sound can be moved to another board with a **Move** button.
+- **Clip a sound is new.** Stream Studio has nothing like it. It is built from the recorder's pieces, which are
+  Stream Studio's: the quiet-trim, the waveform, the draggable Start and End, the turn-down, the fades and the WAV
+  file. On top of those it adds a player for the file, **Start here** and **End here**, a zoom for long files, and
+  the same plain wording. A clip is a recording of part of the file, so it is saved the same way and has no Undo,
+  like **Save sound** in the recorder. The sound is pulled out of the file by the device's own decoder, which is
+  why which videos open depends on the device.
 - **Restoring a backup asks**: **Add them to what I have** or **Replace everything** (undoable). When a backup
   is added, a key that is already in use is left off rather than taking it from another sound.
 - **A new version never reloads the page by itself.** A bar says it is ready and she picks **Update now** or
@@ -102,11 +110,15 @@ there is no flash of the wrong one.
   - Reduced motion, and a scan that every touch target is at least 44 px.
   - A real sound: a generated WAV is imported, played, stopped and stopped all.
   - The recorder with Chromium's fake microphone, and backup and restore through real files.
+  - Clip a sound with made-up files: a WAV with a quiet start, a long WAV, and a short WebM video made by the
+    browser. It opens each, picks a part with the handles, **Start here**, **End here** and the zoom, saves it,
+    and plays the new button. A real MP4 video and M4A sound were also opened by hand in Microsoft Edge, which
+    can decode the formats phones make (the test browser can't).
   - The offline copy and the "new version ready" bar.
 - Not checked: iPhone, iPad and Mac. They can't be run from the PC this was built on.
 
 ## Left out on purpose
 
 On stream / Only me, the always-on-top pop-out window, recording from speakers, Linux, store listings,
-automatic desktop updates, choosing the output device, importing from Stream Studio, and an OGG decoder for
-old iPhones.
+automatic desktop updates, choosing the output device, importing from Stream Studio, getting a video from a
+website, and an OGG decoder for old iPhones.

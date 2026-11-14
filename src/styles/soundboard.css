@@ -401,21 +401,32 @@
   backdrop-filter: blur(14px);
 }
 
+/* Four buttons share a row. If bigger text on her phone means they can't, the last one drops to a second row. */
 .phone-bar-actions {
-  display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .phone-bar .btn {
+  flex: 1 1 max-content;
   min-height: 48px;
-  padding: 0 10px;
+  padding: 0 6px;
   font-size: 15px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .phone-bar .btn-stop {
+  flex-grow: 1.4;
   font-size: 16px;
+}
+
+/* The smallest phones: the little pictures on the buttons make way for the words. */
+@media (max-width: 349.98px) {
+  .phone-bar-actions .btn > [aria-hidden='true'] {
+    display: none;
+  }
 }
 
 .phone-bar .master-volume {
@@ -764,6 +775,99 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+/* ---------- Clipping a sound ---------- */
+
+.clip-choose,
+.clip-opening,
+.clip-source {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.clip-choose p {
+  margin: 0;
+}
+
+.clip-dropzone {
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 28px 20px;
+  text-align: center;
+}
+
+.clip-dropzone .ss-dropzone-text {
+  flex: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.clip-dropzone .ss-dropzone-icon {
+  font-size: 34px;
+}
+
+.clip-dropzone .ss-dropzone-hint {
+  font-size: 13px;
+}
+
+/* A fixed shape from the start, so the page doesn't jump when the file's own size becomes known. */
+.clip-player {
+  display: block;
+  width: 100%;
+  max-height: min(240px, 34dvh);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--app-radius);
+  background: #000;
+  object-fit: contain;
+}
+
+/* A sound has no picture, so all that is needed is the bar to play it with. */
+.clip-player.is-sound {
+  aspect-ratio: auto;
+  height: 54px;
+  background: transparent;
+}
+
+.clip-here {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.clip-progress {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--app-text) 18%, transparent);
+  overflow: hidden;
+}
+
+.clip-progress-bar {
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--app-accent);
+  animation: clip-progress 1.1s ease-in-out infinite;
+}
+
+@keyframes clip-progress {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* Without movement the bar is simply full: the words above it say what is happening. */
+@media (prefers-reduced-motion: reduce) {
+  .clip-progress-bar {
+    width: 100%;
+    animation: none;
+    opacity: 0.5;
+  }
 }
 
 @media (max-width: 719.98px) {

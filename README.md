@@ -40,9 +40,10 @@ These apps aren't signed with a paid certificate, so Windows and macOS warn you 
 ## What you can do
 
 - **Boards:** keep your sounds on as many boards as you like, rename them, and move a sound from one board to another. You always keep at least one board.
-- **Sounds:** add MP3, WAV or OGG files (up to 20 MB each) by browsing or by dragging them onto the page. Give each one its own name, emoji, colour and volume.
+- **Sounds:** add MP3, WAV, OGG or M4A files (up to 20 MB each) by browsing or by dragging them onto the page. Give each one its own name, emoji, colour and volume.
 - **Playing:** tap a button to play it. Taps overlap, so you can play a sound again before it ends or play several at once. **Stop all sounds** cuts everything straight away, and one **Master volume** sets the loudness of the lot.
 - **Record a sound:** record with your microphone for up to a minute. The quiet bits at the start and end are trimmed for you, and nothing is saved until you press **Save sound**.
+- **Clip a sound:** open a video or a long sound file that's already on your device, play it, pick the part you want and save just that part as a new button.
 - **Sound keys:** give each sound a key, and one for **Stop all sounds**. In the Windows and Mac apps they work even while a game or another app is in front.
 - **Back up and restore:** one file holds all your boards and sounds.
 - **Make it yours:** Dark, Light, or System (it follows your device). The look is Stream Studio's: the same purple, the same colourful buttons.
@@ -53,10 +54,10 @@ These apps aren't signed with a paid certificate, so Windows and macOS warn you 
 
 ### Add a sound
 
-1. Press **Add a sound** on an empty board, **Add sounds** on a tablet or computer, or **＋ Add** on a phone, then pick one or more MP3, WAV or OGG files. On a tablet or computer you can also drag files onto the page.
+1. Press **Add a sound** on an empty board, **Add sounds** on a tablet or computer, or **＋ Add** on a phone, then pick one or more MP3, WAV, OGG or M4A files. On a tablet or computer you can also drag files onto the page.
 2. A new button appears. Its name comes from the file's name (`air_horn-2.mp3` becomes "Air horn 2"), and each new button gets its own emoji and colour.
 
-Soundboard comes with no sounds, so use sounds you have the right to use.
+Soundboard comes with no sounds, so use sounds you have the right to use. A video can't be a button as it is. To use the sound from a video, use [Clip a sound](#clip-a-sound).
 
 ### Change a sound
 
@@ -108,6 +109,22 @@ Tap **⚙️ Settings** at the top of the page for the look (**Dark**, **Light**
 
 If a recording is too loud, Soundboard turns it down so it doesn't crackle. It never turns a quiet one up. Recordings are saved as WAV files. Tick **Also save a copy as a file** to keep a copy outside Soundboard too.
 
+## Clip a sound
+
+Use this to turn the best part of a video or a long sound file into a button, like a funny moment from a clip of your stream. It works with files that are already on your device, and it never changes the original file. Only clip things you made or have permission to use.
+
+1. Press **Clip** (**✂️ Clip** on a phone, **Clip a sound** on an empty board), then **Choose a file**. On a tablet or computer you can also drag a file onto the box.
+2. Soundboard opens the file and shows a picture of its sound. Play the file at the top to find the part you want. Press **Start here** where that part begins and **End here** where it finishes. You can also drag **Start** and **End** along the picture (the arrow keys move them too).
+3. Press **Play** under the picture to hear just the part you picked. On a longer file, **Zoom in on the clip** helps you place **Start** and **End** more exactly, and **Show the whole file** zooms back out.
+4. Type a name and press **Save sound**. It's added to the board you're on.
+
+- A file can be up to 200 MB and 10 minutes long, and the part you keep can be up to 3 minutes. Most videos and sound files work, but which ones open depends on your browser or phone.
+- A file of 1 minute or less starts with all of it picked, apart from the quiet at the very start and end, and Soundboard tells you so. A longer file starts with the first 10 seconds picked and tells you how long the file is, so you can move to the part you want.
+- The clip is saved as a WAV file, like a recording. Tick **Also save a copy as a file** to keep a copy outside Soundboard too.
+- Everything happens on your device. Nothing is uploaded, and nothing is saved until you press **Save sound**.
+- Your sound keys are switched off while Clip a sound is open, so a key doesn't play a sound over the file you're listening to.
+- Soundboard doesn't download videos from websites. Clip a sound only opens files that are already on your device.
+
 ## Back up and restore
 
 A backup is one file with all your boards and sounds. Clearing your browser data or uninstalling the app deletes your sounds, so keep a copy somewhere safe, like cloud storage or a USB stick.
@@ -130,7 +147,12 @@ Soundboard hasn't been tested on an iPhone, an iPad or a Mac. It was built and c
 | Nothing plays when I tap a button | Check the volume on your device and **Master volume** in Soundboard. On an iPhone or iPad, check the silent switch on the side too. Before iOS 16.4 it mutes Soundboard. From iOS 16.4, Soundboard asks iOS to play anyway, but that hasn't been tried on a real iPhone. Read any message at the bottom of the page, because it says what went wrong. |
 | "This device can't play OGG sounds yet" | iPhones and iPads before iOS 18.4 can't play OGG files. Add the sound again as an MP3 or WAV. |
 | "That sound is too big (the limit is 20 MB)" | A sound can be up to 20 MB. A WAV is much bigger than an MP3 of the same sound, so save it as an MP3 or trim it in another app, then add it again. |
-| "That file type isn't supported" | Sounds can be MP3, WAV or OGG. Save the sound as one of those first. |
+| "That file type isn't supported" | Sounds can be MP3, WAV, OGG or M4A. Save the sound as one of those first. |
+| "That's a video — soundboard buttons need a sound file" | To use the sound from a video, press **Clip** (or **Clip a sound**) instead of **Add**. See [Clip a sound](#clip-a-sound). |
+| "I couldn't get the sound out of that file" | The video or sound is in a format your browser or phone can't open. Try a shorter video, or save the sound as an MP3, WAV or M4A, then choose it again. Trying another browser sometimes helps too. |
+| "That's longer than 10 minutes" or "That file is too big for me to open" | Clip a sound opens files up to 10 minutes long and 200 MB. Cut the file shorter in another app, then choose it again. |
+| "I didn't hear any sound in that file" | The file may have no sound in it, or only silence. Try another file. |
+| A big video takes a while to open in Clip a sound | Soundboard has to read all of the file's sound before you can pick a part, so a long video takes longer, especially on an older phone. A shorter file opens faster. |
 | "I couldn't play that file. It may be damaged." | Try adding it again. If it still fails, use an MP3 or WAV. |
 | "I can't find that sound's file any more" | Open **✏️ Edit** on that button, then press **Replace file** to add the sound again. |
 | A long sound is slow the first time | Long sounds are got ready the first time you tap them. After that they play at once. |
@@ -151,19 +173,21 @@ Soundboard hasn't been tested on an iPhone, an iPad or a Mac. It was built and c
 - **On stream and Only me:** Soundboard plays through the device's normal sound output. It doesn't split a sound between you and your stream.
 - **A pop-out window that stays on top.**
 - **Recording the sound your speakers are playing.** Recording uses the device's microphone.
+- **Getting a video from a website.** Clip a sound only opens files that are already on your device.
 - **Choosing which speakers or headphones to use.** It uses whatever the device is using.
 - **Linux.**
 - **App store listings.** You get the apps from the links above.
 - **Automatic updates for the Windows and Mac apps.** You download the new file yourself.
 - **Bringing your sounds over from Stream Studio.** Add the sound files to Soundboard again.
-- **OGG on older iPhones.** They can't play it. Use an MP3 or WAV.
+- **OGG on older iPhones.** They can't play it. Use an MP3, WAV or M4A.
 
 ## What was and wasn't tested
 
-Checked, with more than 750 automatic tests and more than 80 checks in a real Chrome-style browser:
+Checked, with more than 900 automatic tests and more than 100 checks in a real Chrome-style browser:
 
 - Adding, playing and stopping sounds, and that a button shows it's playing and then stops.
 - Recording, with a pretend microphone, from the first press of **Record** to **Save sound**.
+- Clipping a sound: opening made-up sound files and a made-up video, picking a part with **Start here**, **End here** and **Zoom in on the clip**, and saving it as a button that plays. A real MP4 video and a real M4A sound were also tried in Microsoft Edge on Windows.
 - Saving a backup, wiping everything and restoring it again.
 - Phone, tablet and computer sizes, in Dark and Light, with reduced motion turned on. No errors on the page, nothing serious in an accessibility scan, and finger-sized buttons on the phone layout.
 - Using Soundboard with only the keyboard.
@@ -177,12 +201,13 @@ Not tested, because they can't be tried from the computer Soundboard was built o
 - **Mac** (Safari and the Mac app).
 - Real Android phones and tablets. The browser checks used a phone-sized window, not a real phone.
 - Firefox, and a real microphone.
+- Videos filmed on a phone (some phones save them in a format that may not open), and very big or very long files on an older phone.
 
 If something looks or sounds wrong on a device that wasn't tested, it helps to know which device it was and what you saw.
 
 ## Browser support
 
-Soundboard is built for current versions of Chrome, Edge, Firefox and Safari. Only the Chrome-style browsers (Chrome and Edge) have been tested. Recording needs a microphone, and it works from the normal link above or in the apps. On an iPhone or iPad, iOS 16.4 or later is best, because Soundboard can then ask iOS to play sounds even when the silent switch is on. OGG files need iOS 18.4 or later. MP3 and WAV work everywhere.
+Soundboard is built for current versions of Chrome, Edge, Firefox and Safari. Only the Chrome-style browsers (Chrome and Edge) have been tested. Recording needs a microphone, and it works from the normal link above or in the apps. On an iPhone or iPad, iOS 16.4 or later is best, because Soundboard can then ask iOS to play sounds even when the silent switch is on. OGG files need iOS 18.4 or later. MP3, WAV and M4A are the safest choices. Which videos Clip a sound can open depends on your browser or phone, because it uses the device's own video support.
 
 ## Assumptions I made
 
@@ -191,6 +216,7 @@ Soundboard is built for current versions of Chrome, Edge, Firefox and Safari. On
 - **New sounds get their emoji and colour in turn,** counting the sounds already on the board.
 - **Undo lasts 10 seconds,** up to 32 sounds play at once, and a phone layout is used below about 720 pixels wide.
 - **Recordings use the default microphone** and are saved as WAV files.
+- **Clip a sound's limits are my choice,** not Stream Studio's: files up to 200 MB and 10 minutes long (a video holds a picture too, so it can be bigger than a sound), and clips up to 3 minutes. Clips are saved as WAV files, like recordings.
 - **Backups** are `.zip` files. When a backup is added to sounds you already have, a key that's already in use is left off instead of taking it away from another sound.
 - **Updates for the Windows and Mac apps:** your sounds should stay when you install a newer file over the old one, but save a backup first if you want to be extra safe.
 - **Colour spelling and wording** follow Stream Studio's: "colour", "Not set", "✏️ Edit".
@@ -214,7 +240,7 @@ Where things are:
 
 - `src/model`: boards and sounds, the sanitising rules and the button colours.
 - `src/storage`: saving on the device, with a file kept only while a sound uses it.
-- `src/audio`: the Web Audio player. `src/audio/recorder` is the microphone recorder.
+- `src/audio`: the Web Audio player. `src/audio/recorder` is the microphone recorder. `src/audio/clip` is Clip a sound: opening a video or sound file and picking a part of it.
 - `src/keys`: sound key strings, clashes and warnings.
 - `src/backup`: backup and restore (a zip made with `fflate`).
 - `src/pwa`: the offline copy, the update bar and the install help.

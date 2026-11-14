@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
-import { RECORDER_TEXT, keepingText, recordingTime, replacingText, type Notice } from '../audio/recorder/messages';
-import { MAX_RECORDING_MS, seconds, stamp } from '../audio/recorder/rules';
+import { RECORDER_TEXT, keepingText, recordingTime, replacingText } from '../audio/recorder/messages';
+import { MAX_RECORDING_MS } from '../audio/recorder/rules';
 import type { RecorderSession, RecorderState } from '../audio/recorder/session';
 import { useIsPhone } from '../hooks/useMediaQuery';
 import { useRecorderSession } from '../hooks/useRecorderSession';
@@ -11,6 +11,8 @@ import { getPlatform } from '../platform';
 import { useBoard } from '../state';
 import { ui, useUi, type RecorderTarget } from '../state/ui';
 import { Dialog } from './Dialog';
+import { NoticeBox } from './NoticeBox';
+import { TrimSlider } from './TrimSlider';
 import { Waveform } from './Waveform';
 
 /** The Record pop-up. It is always on the page, but it only opens (and only uses the microphone) while she is recording. */
@@ -163,12 +165,12 @@ function RecorderBody({ session, target, onRequestClose }: BodyProps) {
                 {recording ? recordingTime(state.elapsedMs, MAX_RECORDING_MS) : RECORDER_TEXT.readyTime}
               </span>
             </div>
-            {state.notice && <Message notice={state.notice} />}
+            {state.notice && <NoticeBox notice={state.notice} />}
             {target.kind === 'replace' && !recording && <p className="ss-field-hint">{replacingText(replacingName ?? '')}</p>}
           </>
         ) : (
           <>
-            {state.notice && <Message notice={state.notice} />}
+            {state.notice && <NoticeBox notice={state.notice} />}
 
             {!state.silent && (
               <>
@@ -187,7 +189,7 @@ function RecorderBody({ session, target, onRequestClose }: BodyProps) {
                     id={startId}
                     label={RECORDER_TEXT.start}
                     ms={state.startMs}
-                    lengthMs={state.lengthMs}
+                    toMs={state.lengthMs}
                     isStart
                     disabled={saving}
                     onChange={(ms) => session.setStart(ms)}
@@ -196,7 +198,7 @@ function RecorderBody({ session, target, onRequestClose }: BodyProps) {
                     id={endId}
                     label={RECORDER_TEXT.end}
                     ms={state.endMs}
-                    lengthMs={state.lengthMs}
+                    toMs={state.lengthMs}
                     disabled={saving}
                     onChange={(ms) => session.setEnd(ms)}
                   />
@@ -310,81 +312,6 @@ function MicRow({ state, onRetry }: { state: RecorderState; onRetry: () => void 
       <div className="recorder-meter" role="meter" aria-label={RECORDER_TEXT.meterName} aria-valuemin={0} aria-valuemax={100} aria-valuenow={level}>
         <div className="recorder-meter-fill" style={{ '--level': `${level}%` } as CSSProperties} />
       </div>
-    </div>
-  );
-}
-
-/** Something the recorder wants her to know: a tip (hint) or something that went wrong (problem). */
-function Message({ notice }: { notice: Notice }) {
-  if (notice.kind === 'problem') {
-    return (
-      <div className="ss-problem" role="alert">
-        <span aria-hidden="true">⚠️</span>
-        <div className="ss-message-body">{notice.text}</div>
-      </div>
-    );
-  }
-  return (
-    <div className="ss-note" role="status">
-      <span aria-hidden="true">💡</span>
-      <div className="ss-message-body">{notice.text}</div>
-    </div>
-  );
-}
-
-interface TrimSliderProps {
-  id: string;
-  label: string;
-  ms: number;
-  lengthMs: number;
-  /** The Start slider is coloured the other way round: what comes after it is what is kept. */
-  isStart?: boolean;
-  disabled: boolean;
-  onChange: (ms: number) => void;
-}
-
-/** How far a key moves a handle, in milliseconds. The browser's own step is a hundredth of the whole recording. */
-const KEY_STEPS_MS: Partial<Record<string, number>> = {
-  ArrowRight: 50,
-  ArrowUp: 50,
-  ArrowLeft: -50,
-  ArrowDown: -50,
-  PageUp: 500,
-  PageDown: -500,
-};
-
-/** Start or End: slide to choose which part of the recording is kept. The picture above shows the same part. */
-function TrimSlider({ id, label, ms, lengthMs, isStart = false, disabled, onChange }: TrimSliderProps) {
-  const percent = lengthMs > 0 ? (ms / lengthMs) * 100 : 0;
-  return (
-    <div className="recorder-handle">
-      <div className="recorder-handle-head">
-        <label className="ss-field-label" htmlFor={id}>
-          {label}
-        </label>
-        <span className="recorder-stamp" aria-hidden="true">
-          {stamp(ms)}
-        </span>
-      </div>
-      <input
-        id={id}
-        type="range"
-        className={isStart ? 'ss-range is-start' : 'ss-range'}
-        min={0}
-        max={lengthMs}
-        step="any"
-        value={ms}
-        disabled={disabled}
-        style={{ '--fill': `${percent}%` } as CSSProperties}
-        aria-valuetext={`${seconds(ms)} seconds`}
-        onChange={(e) => onChange(Number(e.currentTarget.value))}
-        onKeyDown={(e) => {
-          const step = KEY_STEPS_MS[e.key];
-          if (step === undefined || e.altKey || e.ctrlKey || e.metaKey) return;
-          e.preventDefault();
-          onChange(Math.min(lengthMs, Math.max(0, ms + step)));
-        }}
-      />
     </div>
   );
 }

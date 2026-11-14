@@ -26,9 +26,9 @@ const isHighSurrogate = (code: number): boolean => code >= 0xd800 && code <= 0xd
 
 /**
  * What she typed, with anything a file's name can't hold turned into a space, extra spaces and trailing dots removed,
- * and no more than 60 characters. Nothing left is "My recording".
+ * and no more than 60 characters. Nothing left is "My recording" (or whatever `fallback` is).
  */
-export const recordingFileBase = (name: string | null | undefined): string => {
+export const recordingFileBase = (name: string | null | undefined, fallback = DEFAULT_RECORDING_NAME): string => {
   let cleaned = (name ?? '').replace(UNSAFE_RUNS, ' ').trim();
 
   const dot = cleaned.indexOf('.');
@@ -42,8 +42,9 @@ export const recordingFileBase = (name: string | null | undefined): string => {
   }
 
   cleaned = cleaned.replace(/[ .]+$/, '');
-  return cleaned.length === 0 ? DEFAULT_RECORDING_NAME : cleaned;
+  return cleaned.length === 0 ? fallback : cleaned;
 };
 
 /** The file's name for a recording: "My recording.wav". */
-export const recordingFileName = (name: string | null | undefined): string => `${recordingFileBase(name)}.wav`;
+export const recordingFileName = (name: string | null | undefined, fallback = DEFAULT_RECORDING_NAME): string =>
+  `${recordingFileBase(name, fallback)}.wav`;

@@ -23,9 +23,9 @@ a phone in one hand *(inferred)*.
 
 ## Product Purpose
 
-Give her big, colourful sound buttons on every device she owns. She adds a sound (or records one), picks its
-name, emoji, colour, volume and key, and plays it with a tap or a key press. Sounds live on boards, and a
-backup is one file she can keep somewhere safe.
+Give her big, colourful sound buttons on every device she owns. She adds a sound (or records one, or clips a
+part out of a video), picks its name, emoji, colour, volume and key, and plays it with a tap or a key press.
+Sounds live on boards, and a backup is one file she can keep somewhere safe.
 
 Success means:
 
@@ -47,7 +47,7 @@ work even while a game or another app is in front.
 ## Operating Context
 
 - **Phone (under about 720 px wide):** one thumb, short moments. Two columns of buttons, a bar at the bottom
-  with a big Stop all, the master volume, Add and Record, and the editor opens as a bottom sheet.
+  with a big Stop all, the master volume, Add, Record and Clip, and the editor opens as a bottom sheet.
 - **Tablet and computer:** Stream Studio's page layout: title and actions on top, board tabs, the grid of
   buttons, and an edit card.
 - **Keys:** in a browser, sound keys work while the Soundboard window is in front and she isn't typing in a box.
@@ -62,7 +62,9 @@ work even while a game or another app is in front.
   Sound is the Web Audio API; storage is IndexedDB; an offline copy comes from vite-plugin-pwa. The Android
   app wraps the same build in Capacitor and the Windows and Mac apps wrap it in Tauri 2. The apps carry
   their own copy of Soundboard, so they have no offline copy of the web version inside them.
-- **Sounds:** MP3, WAV or OGG, up to 20 MB each. Up to 32 can play at once. Recordings are up to 1 minute.
+- **Sounds:** MP3, WAV, OGG or M4A, up to 20 MB each. Up to 32 can play at once. Recordings are up to 1 minute.
+  Clip a sound opens a video or sound file of up to 200 MB and 10 minutes and keeps up to 3 minutes of it, saved
+  as a WAV like a recording. Which videos open depends on the device's own video support.
 - **Storage:** sounds and boards live in the browser's storage on the device. Clearing site data or
   uninstalling the app deletes them, so the app offers a one-file backup (up to 500 MB) and a reminder.
   Safari can clear a website's data after about a week without a visit; an app on the Home Screen is exempt.
@@ -73,7 +75,8 @@ work even while a game or another app is in front.
   docs make a claim about them.
 - **Left out on purpose:** On stream / Only me, the always-on-top pop-out window, recording from speakers,
   Linux, store listings, automatic desktop updates, choosing the output device, importing from Stream Studio,
-  and an OGG decoder for old iPhones.
+  getting a video from a website (Clip a sound only opens files already on the device), and an OGG decoder for
+  old iPhones.
 
 ## Brand Commitments
 
@@ -88,7 +91,8 @@ work even while a game or another app is in front.
   can be undone.
 - **Free and private:** no account, no cloud, no tracking, no ads. Her sounds never leave her device unless
   she saves a backup and moves it herself.
-- **No bundled sounds:** she brings her own. The app ships none, so it never ships anything copyrighted.
+- **No bundled sounds:** she brings her own. The app ships none, so it never ships anything copyrighted. Clip a
+  sound reminds her to only clip things she made or has permission to use.
 
 ## Evidence on Hand
 

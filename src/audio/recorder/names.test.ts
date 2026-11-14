@@ -73,4 +73,10 @@ describe('the file name of a recording', () => {
     expect(recordingFileName('Door slam')).toBe('Door slam.wav');
     expect(recordingFileName('')).toBe('My recording.wav');
   });
+
+  it('can fall back to another name when nothing usable is left', () => {
+    expect(recordingFileBase('???', 'My clip')).toBe('My clip');
+    expect(recordingFileName('', 'My clip')).toBe('My clip.wav');
+    expect(recordingFileName('Boss fight', 'My clip')).toBe('Boss fight.wav');
+  });
 });

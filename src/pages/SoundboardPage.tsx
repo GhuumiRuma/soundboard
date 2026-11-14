@@ -31,7 +31,7 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
   const adding = useBoard((s) => s.adding);
   const persistent = useBoard((s) => s.persistent);
   const stopAllKey = useBoard((s) => s.data.stopAllKey);
-  const modalOpen = useUi((s) => s.settingsOpen || s.recorder !== null);
+  const modalOpen = useUi((s) => s.settingsOpen || s.recorder !== null || s.clipper);
   const touch = useMediaQuery('(pointer: coarse)') || isPhone;
 
   const dragOver = usePageDrop(!modalOpen, (files) => void getBoardStore().addSounds(files));

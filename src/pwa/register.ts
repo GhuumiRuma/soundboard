@@ -24,7 +24,7 @@ export function initPwa(): void {
   window.addEventListener('appinstalled', () => pwa.wasInstalled());
 
   const reload = createReloader({
-    isBusy: () => uiStore.getState().recorder !== null,
+    isBusy: () => uiStore.getState().recorder !== null || uiStore.getState().clipper,
     watchBusy: (listener) => uiStore.subscribe(listener),
     save: () => getBoardStore().flush(),
     reload: () => window.location.reload(),

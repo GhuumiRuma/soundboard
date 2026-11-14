@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
-import { addSound, addSounds, dropNotASound, openApp, openSettings, PHONE, SIZES, SOUND_FILES, smallTouchTargets } from './helpers';
+import { addSound, addSounds, dropNotASound, makeWav, openApp, openSettings, PHONE, SIZES, SOUND_FILES, smallTouchTargets } from './helpers';
 import {
   ANDROID_CHROME,
   IPHONE_SAFARI,
@@ -118,6 +118,38 @@ for (const size of SIZES) {
         await dropNotASound(page);
         await expect(page.getByText(/notes\.txt: That file type isn't supported/)).toBeVisible();
         await scan(page, 'a message about a problem');
+
+        expect(errors).toEqual([]);
+      });
+
+      // On its own, with a board that has nothing else on it, so no button sits behind the bottom bar or a message.
+      test('the Clip a sound screens pass the accessibility checks', async ({ page }) => {
+        test.setTimeout(90_000);
+        const errors: string[] = [];
+        await openApp(page, errors);
+        await page.getByRole('button', { name: 'Clip', exact: true }).click();
+        const clipper = page.getByRole('dialog', { name: 'Clip a sound' });
+        await expect(clipper).toBeVisible();
+        await scan(page, 'the Clip a sound box');
+
+        const [wrongFile] = await Promise.all([page.waitForEvent('filechooser'), clipper.getByRole('button', { name: 'Choose a file' }).click()]);
+        await wrongFile.setFiles({ name: 'notes.txt', mimeType: 'text/plain', buffer: Buffer.from('Remember to say thanks to everyone who joined the stream today.') });
+        await expect(clipper.getByRole('alert')).toContainText("I couldn't get the sound out of that file");
+        await scan(page, 'the Clip a sound box with a message about a problem');
+
+        const [chooser] = await Promise.all([page.waitForEvent('filechooser'), clipper.getByRole('button', { name: 'Choose a file' }).click()]);
+        await chooser.setFiles({ name: 'stream highlights.wav', mimeType: 'audio/wav', buffer: makeWav(90, 330, 8000) });
+        await expect(clipper.getByLabel('Name', { exact: true })).toHaveValue('Stream highlights');
+        await scan(page, 'a long file ready to clip');
+
+        await clipper.getByRole('button', { name: 'Zoom in on the clip' }).click();
+        await expect(clipper.getByRole('button', { name: 'Show the whole file' })).toBeVisible();
+        await scan(page, 'the clip zoomed in');
+
+        await clipper.getByRole('button', { name: 'Save sound' }).click();
+        await expect(clipper).toBeHidden();
+        await expect(page.getByText('Added “Stream highlights” to My sounds.')).toBeVisible();
+        await scan(page, 'the message after a clip is saved');
 
         expect(errors).toEqual([]);
       });

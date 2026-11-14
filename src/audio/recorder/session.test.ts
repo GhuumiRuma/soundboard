@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
+import { FakePreview } from '../../test/preview';
 import { RATE, join, silence, tone } from '../../test/samples';
 import { MIC_PROBLEM_TEXT, MicProblem, NOTICES } from './messages';
 import type { MicInput } from './mic';
-import type { Preview } from './preview';
 import { MAX_RECORDING_MS, WAVEFORM_BARS } from './rules';
 import { RecorderSession, type RecordedFile, type SaveResult } from './session';
 import { wavSize } from './wav';
@@ -39,32 +39,6 @@ class FakeMic implements MicInput {
     this.closed = true;
     this.onBlock = null;
     this.onLost = null;
-  }
-}
-
-class FakePreview implements Preview {
-  played: { samples: Float32Array; rate: number }[] = [];
-  stops = 0;
-  canPlay = true;
-  private ended: (() => void) | null = null;
-
-  play(samples: Float32Array, rate: number, onEnded: () => void): boolean {
-    if (!this.canPlay) return false;
-    this.played.push({ samples, rate });
-    this.ended = onEnded;
-    return true;
-  }
-
-  stop(): void {
-    this.stops += 1;
-    this.finish();
-  }
-
-  /** It played to the end by itself. */
-  finish(): void {
-    const ended = this.ended;
-    this.ended = null;
-    ended?.();
   }
 }
 
