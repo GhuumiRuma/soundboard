@@ -1,4 +1,5 @@
 import { BoardCard } from '../components/BoardCard';
+import { AudioRoutingNotice } from '../components/AudioRouting';
 import { BackupReminder } from '../components/Backup';
 import { BoardTabs, BOARD_PANEL_ID, boardTabId } from '../components/BoardTabs';
 import { Dialog } from '../components/Dialog';
@@ -54,6 +55,7 @@ export function SoundboardPage({ isPhone }: SoundboardPageProps) {
       </PageHeader>
 
       <div className="ss-notices">
+        <AudioRoutingNotice />
         <UpdateNotice />
         {!persistent && (
           <div className="ss-warning">

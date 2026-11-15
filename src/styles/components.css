@@ -463,6 +463,44 @@
   color: var(--app-muted);
 }
 
+.audio-routing-steps {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.audio-routing-steps li + li {
+  margin-top: 8px;
+}
+
+.audio-routing-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.audio-routing-section .ss-input,
+.audio-routing-section .btn,
+.audio-routing-section .ss-switch,
+.audio-routing-notice .btn {
+  min-height: var(--tap);
+}
+
+.audio-routing-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.audio-routing-notice {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.audio-routing-notice .ss-message-body {
+  flex: 1 1 14rem;
+  overflow-wrap: anywhere;
+}
+
 .ss-input {
   width: 100%;
   min-width: 0;

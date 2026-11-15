@@ -136,6 +136,8 @@ export class SoundEngine {
   private ctx: AudioContextLike | null = null;
   private master: GainNodeLike | null = null;
   private masterVolume = 1;
+  private localPlayback = true;
+  private readonly outputs = new Set<unknown>();
   /** Goes up every time she presses Stop all, so a sound that was still getting ready knows not to start. */
   private generation = 0;
   private current: EngineState = { playing: new Set(), loading: new Set() };
@@ -210,6 +212,23 @@ export class SoundEngine {
     this.ramp(this.master.gain, this.masterVolume);
   }
 
+  /** Sends only soundboard buttons (not recorder or clip previews) to an extra output. */
+  attachOutput(destination: unknown): () => void {
+    if (!this.master) throw new Error('The sound system is not ready.');
+    this.master.connect(destination);
+    this.outputs.add(destination);
+    return () => {
+      if (!this.outputs.delete(destination)) return;
+      this.connectOutputs();
+    };
+  }
+
+  /** Local listening is independent of the extra output and never includes the live microphone. */
+  setLocalPlayback(enabled: boolean): void {
+    this.localPlayback = enabled;
+    this.connectOutputs();
+  }
+
   /** Changes how loud a sound is, even while it plays. */
   setSoundVolume(soundId: string, volume: number): void {
     for (const voice of this.voices) if (voice.soundId === soundId) this.ramp(voice.gain.gain, gainFor(volume));
@@ -252,6 +271,8 @@ export class SoundEngine {
     const ctx = this.ctx as (AudioContextLike & { close?: () => Promise<void> }) | null;
     this.ctx = null;
     this.master = null;
+    this.outputs.clear();
+    this.localPlayback = true;
     await ctx?.close?.();
   }
 
@@ -269,18 +290,27 @@ export class SoundEngine {
     if (!ctx) return null;
     const master = ctx.createGain();
     master.gain.value = this.masterVolume;
-    master.connect(ctx.destination);
     if (this.ctx) {
       // The browser shut the old one down, and anything that was playing went with it.
       this.voices.clear();
+      this.outputs.clear();
+      this.localPlayback = true;
       this.publish();
     }
     this.ctx = ctx;
     this.master = master;
+    this.connectOutputs();
     setAudioSession('playback');
     // Sound is allowed now, so her small sounds can be got ready in the background.
     queueMicrotask(() => void this.schedulePreload());
     return ctx;
+  }
+
+  private connectOutputs(): void {
+    if (!this.master || !this.ctx) return;
+    this.master.disconnect();
+    if (this.localPlayback) this.master.connect(this.ctx.destination);
+    for (const output of this.outputs) this.master.connect(output);
   }
 
   private wake(ctx: AudioContextLike): void {

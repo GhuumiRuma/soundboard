@@ -3,6 +3,7 @@ import { useIsPhone, useMediaQuery } from '../hooks/useMediaQuery';
 import { setThemePref, useTheme, type ThemePref } from '../state/theme';
 import { ui, useUi } from '../state/ui';
 import { BackupSection } from './Backup';
+import { AudioRoutingSection } from './AudioRouting';
 import { Dialog } from './Dialog';
 import { InstallSection } from './Install';
 import { SoundKeysSwitch, StopAllKeyField } from './SoundKeys';
@@ -66,6 +67,7 @@ export function SettingsDialog() {
     <Dialog open={open} title="Settings" onClose={ui.closeSettings} sheet={isPhone}>
       <ThemeSection />
       <SoundKeysSection />
+      <AudioRoutingSection />
       <BackupSection />
       <InstallSection />
       <AboutSection />

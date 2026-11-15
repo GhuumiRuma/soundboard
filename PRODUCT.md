@@ -54,6 +54,12 @@ work even while a game or another app is in front.
   In the Windows and Mac apps they work everywhere. A switch turns them all off.
 - **Sound:** goes out through the device's normal sound output, so anything that captures the computer's
   sound (like Stream Studio's Desktop audio) should hear it. This has not been tried with Stream Studio.
+- **Microphone output (Windows):** Settings can send sound buttons to an installed virtual cable using
+  output-device selection, and optionally mix in a selected physical microphone. Local listening is optional.
+  The user installs the driver and chooses its receiving device in the call/streaming app. Nothing is
+  installed or made the system default by Soundboard. Routing never auto-starts. Types, both frontend
+  builds and simulated automated routing checks pass. The real webcam can be opened and released;
+  real-cable, Windows installer and receiving-app routing checks remain unverified.
 - **Boards:** she starts with one empty board called My sounds. No sounds are bundled.
 
 ## Capabilities and Constraints
@@ -73,8 +79,8 @@ work even while a game or another app is in front.
   use MP3 or WAV. Sound keys need a keyboard.
 - **Not tested on real iPhones, iPads or Macs.** The build was made on a Windows PC. Say so wherever the
   docs make a claim about them.
-- **Left out on purpose:** On stream / Only me, the always-on-top pop-out window, recording from speakers,
-  Linux, store listings, automatic desktop updates, choosing the output device, importing from Stream Studio,
+- **Left out on purpose:** per-button On stream / Only me, the always-on-top pop-out window, recording from speakers,
+  Linux, store listings, automatic desktop updates, choosing the normal listening output, importing from Stream Studio,
   getting a video from a website such as YouTube (Clip a sound only opens files already on the device; in
   November 2026 YouTube only let an outside app take about the first minute of sound, and it changes how it
   checks apps without warning), and an OGG decoder for old iPhones.

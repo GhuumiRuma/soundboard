@@ -97,6 +97,15 @@ there is no flash of the wrong one.
   **Later**, so a sound is never cut off.
 - **The Android and desktop apps carry no offline copy.** They bring their own copy of Soundboard, so the build
   for them (`npm run build:native`) leaves the service worker and manifest out. CI checks this.
+- **Microphone output is a Windows Settings section**, using the existing fields, switches and messages.
+  It explains the separate virtual driver and the CABLE Input / CABLE Output pairing before offering Start.
+  A native output permission picker is preferred where available; Chromium's microphone-permission path
+  remains an explicitly explained fallback. Local-listening changes recheck the current default output.
+  A persistent board notice has Stop sending, so a live microphone is never hidden when Settings closes.
+  Sound buttons can still play locally; live voice and recorder/clip previews are not monitored through that
+  feed. Unsupported platforms get limitations instead of non-working controls. Focused browser scenarios
+  and a routing-section accessibility scan at desktop and phone widths pass using simulated audio devices.
+  Real virtual-cable and cross-app delivery have not been checked.
 
 ## How it is checked
 
@@ -119,7 +128,7 @@ there is no flash of the wrong one.
 
 ## Left out on purpose
 
-On stream / Only me, the always-on-top pop-out window, recording from speakers, Linux, store listings,
-automatic desktop updates, choosing the output device, importing from Stream Studio, getting a video from a
+Per-button On stream / Only me, the always-on-top pop-out window, recording from speakers, Linux, store listings,
+automatic desktop updates, choosing the normal listening output, importing from Stream Studio, getting a video from a
 website such as YouTube (when tried in November 2026, YouTube only let an outside app take about the first
 minute of sound), and an OGG decoder for old iPhones.

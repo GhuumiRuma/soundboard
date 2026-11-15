@@ -45,6 +45,7 @@ These apps aren't signed with a paid certificate, so Windows and macOS warn you 
 - **Record a sound:** record with your microphone for up to a minute. The quiet bits at the start and end are trimmed for you, and nothing is saved until you press **Save sound**.
 - **Clip a sound:** open a video or a long sound file that's already on your device, play it, pick the part you want and save just that part as a new button.
 - **Sound keys:** give each sound a key, and one for **Stop all sounds**. In the Windows and Mac apps they work even while a game or another app is in front.
+- **Send sounds as your microphone (Windows):** send your sound buttons through an installed virtual audio cable to a call, game or stream. You can include your real voice and keep hearing the buttons in your headphones.
 - **Back up and restore:** one file holds all your boards and sounds.
 - **Make it yours:** Dark, Light, or System (it follows your device). The look is Stream Studio's: the same purple, the same colourful buttons.
 - **Safety net:** deleting a sound or a board, or replacing a file, can be undone for a few seconds.
@@ -89,7 +90,46 @@ After you delete a sound or a board, or replace a file, a bar appears at the bot
 
 ### Settings
 
-Tap **⚙️ Settings** at the top of the page for the look (**Dark**, **Light** or **System**), the **Sound keys** switch and the Stop all sounds shortcut, **Backup and restore**, **Install on this device**, and the version of Soundboard you have.
+Tap **⚙️ Settings** at the top of the page for the look (**Dark**, **Light** or **System**), the **Sound keys** switch and the Stop all sounds shortcut, **Send sounds as your microphone**, **Backup and restore**, **Install on this device**, and the version of Soundboard you have.
+
+## Send sounds as your microphone
+
+On **Windows**, a virtual audio cable lets another app hear your soundboard buttons as if they came from a microphone. Soundboard cannot turn a speaker or your physical microphone into a new system microphone. You must install a separate virtual audio driver yourself; Soundboard never installs one or changes your Windows sound defaults.
+
+### Set it up on Windows
+
+1. Download **VB-CABLE** from [VB-Audio's official website](https://vb-audio.com/Cable/). It is a separate donationware driver, not part of Soundboard. Extract the download, run the setup for your computer **as administrator**, and **restart Windows**, following the vendor's instructions.
+2. Leave **headphones** as your normal Windows sound output. Do **not** make the cable your system default, or the whole computer's sound could go into your call.
+3. In Soundboard, open **Settings → Send sounds as your microphone**. If **Choose and allow output** is shown, click it and choose **CABLE Input** in the browser's permission picker. This grants permission for that output without opening your microphone.
+4. If that picker is not available in Chrome, Edge or WebView2, press **Allow and refresh devices**, allow microphone access, then choose **CABLE Input (VB-Audio Virtual Cable)** in **Virtual cable output**. Chromium permits named outputs once microphone permission is granted. This briefly opens the default microphone, then releases it; it does not save a recording. Other browsers need not grant unrelated output devices this way: if access is refused, Soundboard shows the error and does not redirect audio.
+5. To keep your own voice alongside the buttons, press **Allow and refresh devices** to list microphones if needed, turn on **Include my real voice** and choose your physical microphone. Do **not** choose CABLE Output or another virtual input; feeding the cable back into itself causes feedback. Set **Your voice volume** as needed.
+6. In **Discord, your game, OBS or your streaming app**, choose **CABLE Output (VB-Audio Virtual Cable)** as its **microphone/input device**. The cable carries the sound buttons and, if enabled, your voice. If the app has a separate source for your physical microphone, turn that source off to avoid hearing your voice twice.
+7. Press **Start sending** in Soundboard. **Also hear sounds on my normal output** keeps the sound buttons playing in your headphones; your live voice is never played back to you.
+
+**CABLE Input → CABLE Output** is the important pairing. The receiving app must allow you to choose a microphone device. Soundboard cannot choose it on your behalf or check whether the other app is listening.
+
+Soundboard itself does not upload or save the live voice feed. Your chosen call or streaming app can broadcast or record it, including any sound buttons you play while sending is on.
+
+- Sending stays active when you close Settings or minimise Soundboard. A notice on the board shows where it is sending and offers **Stop sending**.
+- **Stop sending** releases your microphone and restores normal playback. Closing or reloading Soundboard also stops sending; you must start it again each visit. Device choices and microphone routing are not saved in backups.
+- **Master volume**, each sound's volume and **Stop all sounds** affect the sound buttons, **not your live voice**. To stop your voice too, use **Stop sending**. With voice off, the cable receives just the buttons.
+- Recorder previews and Clip a sound previews are not sent. This feature sends the soundboard buttons, not the computer's desktop audio.
+- Use headphones so your real microphone does not pick up the buttons again. If sound or voice crackles, lower Master volume and Your voice volume. If a call app removes sound effects, review its noise suppression and automatic microphone level settings.
+- Local listening cannot be enabled while the selected virtual output is also your normal Windows output. If Windows changes the normal output to that cable while sending, local listening is disabled and a message explains why. Soundboard does not change the Windows default for you.
+- If a microphone or cable disconnects, or audio is paused, Soundboard stops sending and shows a message. Reconnect it, refresh the list and start again.
+- An external mixer such as VoiceMeeter can also receive the output. Follow that mixer's own instructions for its receiving microphone device; avoid mixing your physical voice both there and in Soundboard.
+
+### Platform limits and validation
+
+The built-in controls target **Windows**, using the browser's real output-device selection API. They are shown only when that API and a secure origin are available. Current Chrome or Edge on the HTTPS Soundboard site is the browser path; the Windows installer uses WebView2 and also needs that API available in its runtime. If your app cannot select an output, Settings explains the limitation rather than pretending to redirect audio. If switching devices is refused, check browser permissions, Windows microphone privacy settings and your virtual driver.
+
+When available, the explicit browser output picker is preferred. It runs directly from **Choose and allow output**, before any waiting, and Soundboard uses the device ID returned by the browser. **Start sending** calls `setSinkId` in its original button click and requires it to succeed before connecting audio. Cancelling a permission picker, denying access or removing a device never falls back to a different output.
+
+**Mac:** the built-in controls are not enabled. Routing requires a separately installed virtual device (for example, VB-CABLE for Mac) and external routing/mixing software. The Mac desktop app's web view cannot select the output here. This workflow has not been checked on a Mac.
+
+**Android, iPhone and iPad:** this app cannot replace another app's microphone or install a virtual microphone. Normal playback and recording remain available. Use a Windows computer with a virtual cable for this workflow.
+
+**Validation resumed with the user's permission.** The types, web and native frontend builds, audio unit tests and focused browser scenarios have been checked. Automated routing tests use simulated device permissions/outputs and synthetic microphone streams, not a real virtual cable. A real Depstech webcam microphone was opened by its exact device ID and released; the Shure MV7 microphone was not opened. That hardware check used automatic browser permission approval, so it does not prove the interactive permission prompt. No virtual cable was installed or exposed on the test PC. Windows installer routing and real cross-app microphone delivery still need confirmation with an installed virtual cable and a receiving app.
 
 ## Sound keys
 
@@ -170,11 +210,11 @@ Soundboard hasn't been tested on an iPhone, an iPad or a Mac. It was built and c
 
 ## What isn't in Soundboard (on purpose)
 
-- **On stream and Only me:** Soundboard plays through the device's normal sound output. It doesn't split a sound between you and your stream.
+- **Per-button On stream and Only me:** there is no separate destination for each button. Windows microphone sending applies to all soundboard buttons together.
 - **A pop-out window that stays on top.**
 - **Recording the sound your speakers are playing.** Recording uses the device's microphone.
 - **Getting a video from a website, such as YouTube.** Clip a sound only opens files that are already on your device. I tried a YouTube link option and left it out. When I tried it in November 2026, YouTube only let an outside app take about the first minute of a video's sound and refused the rest, and it changes how it checks apps without warning, so it would break more often than it worked. YouTube's rules also only allow downloading a video if the owner or YouTube says it's okay.
-- **Choosing which speakers or headphones to use.** It uses whatever the device is using.
+- **Choosing different speakers or headphones for normal listening.** It uses the device's normal output. Windows microphone sending can select a separate virtual cable output.
 - **Linux.**
 - **App store listings.** You get the apps from the links above.
 - **Automatic updates for the Windows and Mac apps.** You download the new file yourself.
@@ -182,6 +222,8 @@ Soundboard hasn't been tested on an iPhone, an iPad or a Mac. It was built and c
 - **OGG on older iPhones.** They can't play it. Use an MP3, WAV or M4A.
 
 ## What was and wasn't tested
+
+**Microphone output:** types, both frontend builds, focused audio tests and six browser scenarios have been checked, including simulated permissions, exact microphone selection, cancellation, device loss and the local-listening guard. The routing Settings section passes an accessibility scan at desktop and phone widths. The real webcam opened and was released, but **real virtual-cable and cross-app delivery remain unverified**. The checks below describe earlier work.
 
 Checked, with more than 900 automatic tests and more than 100 checks in a real Chrome-style browser:
 
@@ -240,13 +282,15 @@ Where things are:
 
 - `src/model`: boards and sounds, the sanitising rules and the button colours.
 - `src/storage`: saving on the device, with a file kept only while a sound uses it.
-- `src/audio`: the Web Audio player. `src/audio/recorder` is the microphone recorder. `src/audio/clip` is Clip a sound: opening a video or sound file and picking a part of it.
+- `src/audio`: the Web Audio player. `routing.ts` sends a post-master button feed and optional live microphone through a `MediaStreamAudioDestinationNode` to an HTML audio element whose `setSinkId` selects the virtual cable. Only the button feed is monitored locally; the microphone never connects to the normal destination. `src/audio/recorder` is the microphone recorder. `src/audio/clip` is Clip a sound: opening a video or sound file and picking a part of it.
 - `src/keys`: sound key strings, clashes and warnings.
 - `src/backup`: backup and restore (a zip made with `fflate`).
 - `src/pwa`: the offline copy, the update bar and the install help.
 - `src/platform`: one interface with three versions, for saving files, sound keys and haptics: the browser (`web.ts`), Capacitor (`capacitor.ts`) and Tauri (`tauri.ts`). `index.ts` picks one.
 - `src/components`, `src/pages`, `src/styles`, `src/state`: the screen and its stores.
 - `e2e`: the browser checks.
+
+Output permission is browser-specific. The [Audio Output Devices specification](https://w3c.github.io/mediacapture-output/#obtaining-consent) requires implicit consent for outputs sharing a permitted microphone's group, not every unrelated virtual output. The implementation prefers `selectAudioOutput` when available. Its Chromium fallback is supported by `DoCheckPermissionsOnUIThread` in Chromium's `media_devices_permission_checker.cc`, which grants audio-output access with microphone permission, and `AudioOutputAuthorizationHandler`, which uses that check for non-default sinks. See [Chromium's permission checker](https://github.com/chromium/chromium/blob/main/content/browser/media/media_devices_permission_checker.cc) and [output authorization](https://github.com/chromium/chromium/blob/main/content/browser/renderer_host/media/audio_output_authorization_handler.cc). This source inspection is not a real-device verification of any installed Chrome, Edge or WebView2 build.
 
 Pushing to `main` runs `.github/workflows/ci.yml` (types, tests, both builds, then the browser checks) and `.github/workflows/deploy.yml`, which publishes the web app to GitHub Pages. `android.yml` builds and signs `Soundboard.apk` and updates the **android-latest** release. `desktop.yml` builds the Windows installer and the Mac app and updates the **desktop-latest** release.
 

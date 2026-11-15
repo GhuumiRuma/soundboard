@@ -62,6 +62,23 @@ afterEach(() => {
 });
 
 describe('playing a sound', () => {
+  it('keeps button output connected when local listening changes, then restores speakers on detach', async () => {
+    const t = setup();
+    await playAll(t, 's1');
+    const output = { name: 'virtual cable' };
+    const detach = t.engine.attachOutput(output);
+    expect(t.ctx.master.connections).toEqual([t.ctx.destination, output]);
+    t.engine.setLocalPlayback(false);
+    expect(t.ctx.master.connections).toEqual([output]);
+    t.engine.setMasterVolume(0.4);
+    expect(t.ctx.master.gain.latest).toBe(0.4);
+    t.engine.setLocalPlayback(true);
+    detach();
+    detach();
+    expect(t.ctx.master.connections).toEqual([t.ctx.destination]);
+    expect(t.ctx.sources[0].started).toHaveLength(1);
+  });
+
   it('sends it through its own volume, then the master volume, then the speakers', async () => {
     const t = setup();
     t.add('m1');
